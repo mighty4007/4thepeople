@@ -1,0 +1,20 @@
+---------------- : linux cmds :--------------------------------
+> pwd    		 					: present working directry
+> uname  	 						: OS name
+> ls -l	  							: list items with basic file details
+> touch	<filename>  				:  just to create file
+> cat > <file name>					: create file and update.if file exists override the content
+> cat >> <fileName>					: to append data to file insted of override
+> vi <fileName>						: to open the editer
+> mkdir <dirName>					: create folder
+> cp <source> <desination> 			: copy file
+> mv <source> <dest>				: moving file/rename file
+> sudo <command>					: to overcome permission issues
+> vim <fileName>					: to edit file. modes> colon/command: we need to press ":",insert mode: press "i" , esc : esc key
+> :wq								: save content in file if we are using ! it is forfull close.updates not updated
+> :%s/<old text>/<new text>			: to replace text in vi mode
+> :1s/<old text>/<new text>			: to  first found replace text in vi mode
+> u									: undo changes in vi mode
+> rm -rf <file name>				: removing file -rf: forcefull remove
+> stat <filename>					: to know stats of file name
+> ln <src file> <dest file>			: link the file 

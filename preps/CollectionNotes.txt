@@ -1,0 +1,169 @@
+------------------------------------------------------ : COLLECTIONS hierarchy : ------------------------------------
+Iterable (I)
+	(e)-- Collection(I)
+			(e)--> List (I)
+					(i) --> ArrayList
+					(i) --> Vector
+							(e)-->Stack
+					(i) --> LinkedList (its implement DeQueue Also)
+			(e)--> Queue(I)
+					(e) --> Dequeue
+					(i) --> PriorityQueue (AbstractQueue(AbstractQueue extends AbstractCollection implements Queue)
+			(e)--> Set	(I)
+					(i) --> HashSet
+							--> (e) -->LinkedHashSet (and implement Hashset)
+					
+					(e)-->SortedSet
+							(e) --> NavigableSet
+									(i) -->TreeSet
+Map(I) (v 1.2) : map is not a extention of Collection
+	(e) --> SortedMap (v1.2)
+			(e)-->NavigableMap (v 1.6)
+					-->(i) -->TreeMap (v 1.2)
+	(i) --> HashMap (v1.2)
+			(e)-->LinkedHashMap (v 1.4)
+	(i) --> HashTable
+	(i) --> identytyHashMap(1.4)
+	(i) --> WeakHashMap(v1.2)
+	(i) --> Hashtable (1.0)
+			(e) --> Properties (v 1.0)
+
+
+--------------------------------------------------------- :ArrayList: ------------------------------------
+--> default size(capacity) of arry list at the time of creation is 10.contails null initially
+--> if you adding the new eliment after filling the 10 index.it will create new array with extra size and copy the prevoious array data to new arry and made old array
+	eligible for garbage collectior
+--> resizing formula is  current capacity(size) * (3/2) +1
+--> List will allow duplicate data
+--> null insertion possible
+--> you can insert any data type into (hetrozenious) list[list.add(1),list("hi"),list(false),list(10.22)]
+--> shift operator: list.add(1,30) then all the next index values are carry forward to next index(shifting). its a time consumption.not advisable if data is huge
+--> remove: list.remove(1). then next then all the next index values are carry backword to next index(shifting).its a time consumption.not advisable if data is huge
+--> arraylist implements an interface called RandomeAccess.so what ever index value you are trying to get it will take same time.
+	retrival value is with best performance in any size of array
+--> RandomeAccess is marker interface
+		--> marker interface dont have any methods
+--> Vector also implemented RandomeAccess
+--> Arraylist is best choice retrival operation and bad for insertion and remove
+
+
+--------------------------------------------- : HashSet : -------------------------------------------------------------------
+--> hash Set is similar to HashMap functionality for internal managemet
+--> since there is no key concept in set. the value will be stored as Key in hashtable and value as default Object
+--> in hashset insersion order is not preserved. it will based on the has index generation
+
+-----------------------------------------------: LinkedSet : ------------------------------------------------------
+--> its same as HashSet but insersion order will be preserved using linked list concept
+
+----------------------------------------------: TreeSet : -------------------------------------------------
+--> TreeSet is mainly used to store the elements in sorted order defined by the Object which is implemeing the Comparable interface
+--> If object which is inserting to treemap is not implemeing the Comparable interface will thorough runtime class caste exception.
+		--> in order to avoid the same we need to use the constrctor of treemap which accepting the Comparator interface 
+--> Comparator vs Comparable
+		--> Comparable usually used to utilize default sorting
+		--> Comparator uselly used to write our own sorting logic by bypassing default sorting
+		--> Predefined Comparable classess(Ex: String) Sorting can be override by Comparator
+		--> Predefined Non-Comparable classess(Ex: StringBuffer) Sorting can be override by Comparator
+		--> Our Own Obj(Employee)
+			--> the person who is writing class will implement comparable in order to provide default sort
+			--> the person who is using our class will implement comparator in order to customize sort
+
+------------------------------------------- : Map : --------------------------------------------	
+--> map is not a extention of Collection
+--> single key,pair colled as Entry
+--> Map interface have inner interface called Entry whick will deal with entry data
+	--> reference creation for  Entry methods : Map.Entry m1;
+--> null is allowed in key once but allowed in values multiple times 
+--> underline data structure is Hashtable
+--> insertion order not preserved and its based on hashcode of keys
+
+---------------------------------------------------------- : HashMap : --------------------------------------------------
+--> implements serializable and clonable interface but not random access
+--> HashMap can be thread safe by calling synchronized method. Collections. synchronizedMap(hashmap) (internally it 
+	will convert as hash table)
+--> best fit for frequest opration is search operation
+--> the bucket size of hashmap is 16 (0-15)
+--> each bucket called node (linked List)
+--> insert will happen in key value pair [map.put("key",Value)]
+		-->the internal steps when u put any data in hashmap
+				--> it will generate hashcode for the key hashcode=hash("key").hash code generally integer
+				--> as hash code has bigger nuber we cant have it as index in hashmap.so we will reduce index to index=hash &(n-1) [n is size of arry]
+				--> linked list will be created in that found in above.below will be stored in linked list
+						--> hashcode
+						--> key			
+						--> Value
+						--> next
+				--> every linked list last node[next] contains address of next node if any
+		--> if map found same hashkey for different key. then another linked list created and linked to new list from existing in same index.its called hash collision
+--> if key is null. that that values will be stored on 0 th node.
+--> it there is duplicate key it will override to latest one
+--> there are 2 variables LoadFactor and ThreadHold . the default percentage of LoadFactor is 0.75. so thresehold will be 12.map will double the current size
+--> get method working.map.get("key")
+	--> hashcode will be computed for the hascode for the key
+	--> it will compute index as well.
+	--> data will be matched in that index with inputed key  and hash code		
+
+--------------------------------------------------: HashMap vs Hashtable : ------------------------------------
+HashMap								HashTable
+
+1) not synchronized					1) synchronized
+2) not thread safe					2) thread safe
+3) relative performance high		3)low
+4) null is allowed in Key and value 4) null not allowed
+5)v 1.2 onwards available			5) its legacy object from 1.0 version
+
+--> by default hashmap is non synchronized but we get synchronizedversion of hash map by using synchonizedMap method of Collections Class
+		--> Map m1=Collections.synchonizedMap(m);
+
+----------------------------------------------: LinkedHashMap,IdentytyHashMap,WeakHashMap :------------------------------
+--> LHM underline data structure is LinkedList+Hashtable and extends HashMap 
+--> LHM insersion order is preserved
+--> Hashmap uses .equal() method to identify duplicate in Keys(its avoid duplicate content of different obj).where as Identity map uses == for key duplication.other than
+	remaining same as HashMap
+		Map m1= new HashMap();
+			Integer i1= new Integer(10);
+			Integer i2= new Integer(10);
+			m1.put(i1,"A");
+			m1.put(i2,"B");
+			sop(m1) //o/p : {i1=B}
+		Map m2= new HashMap();
+			Integer i1= new Integer(10);
+			Integer i2= new Integer(10);
+			m2.put(i1,"A");
+			m2.put(i2,"B");
+			sop(m1) //o/p : {i1=A,i2=B}
+--> WHM is same as HashMap except the following difference if runs
+		--> in the case of hashMap eventhough object doesnt have any referance it is not eligible for GC(Garbage collector) 
+			if it is associated with HashMap i.e., HashMap dominate GC
+		--> in case of WeakHashMap if obj doesnt contains any referance its eligible for GC eventhough object associated with WeakHashMap 
+
+-------------------------------------------------- : SortedMap : --------------------------------------------------------------------------
+
+--> child interface of Map.
+--> if we want to represents group of key value pairs according to some sorting order of keys then we should go for sorted Map
+--> firskKey(),lastKey(),headMap("upto Key"),tailMap("from key"),subMap("from key","To Key"),Comparator comparator()
+
+-------------------------------------------------- : TreeMap : -------------------------------------------------------------
+
+--> underline data structure is RED-BLACK tree
+--> insertion order not preserved
+--> duplicate keys not allowed
+--> if sorting using default sorting(comparable objects) then keys should be homogenious or else we can have hetrgenious by implementing comparator interface
+--> whether we are depending on default natual sorting order or customized sorthing order there or no restriction on values
+--> Null Acceptance
+		--> for non empty Treemap if we are trying to insert null then it will throw null pointer exception
+		--> for empty we can insert null as first entry
+		--> above are applicble only for 1.6 or previous versions.
+		--> from 1.7 treeSet not accepting null values
+
+		
+---------------------------------------------------- : Hashtable : ---------------------------------------
+
+--> underline data structure is Hashtable
+--> it insert hash code of keys
+--> duplicate keys not allowed
+--> serializable and clonable implemented
+--> thread-safe
+--> best fit for search
+--> default initial capacity 11
+--> fill ratio(loadFactor) 0.75

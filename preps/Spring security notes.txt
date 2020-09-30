@@ -1,0 +1,300 @@
+--> by using the filter concepts spring implemented the authorization layer as spring security
+--> filters will be invoked even before request reached to front controller i.e., Dispatcher servlet
+--> multiple filers are invoked for different purposes. fileters can be grouped as chain of filters
+--> the flow of filters reachability is
+	--> Delegate Filer proxy : it will be called intially . it will internally call Filter chain Proxy
+	--> Filter chain proxy : it will handover the request to actual filters in chain
+--> based on url patters the chain of filters will be vary
+--> flow evebts once user scucessfully login. 
+	--> it will create Priciple object its associated aith Authorities Object (roles maintained)
+	--> priciple object and Authorities object combily populated to authentication object
+	--> once Authertication object formed this object will be injected to SecurityContext
+	--> Securitycontext will be injected to HttpSession
+	--> in order to check the used loged or not by checking the securityContext available or not in HttpSession Objects
+	
+--> flow of authenticate the resource request:
+	
+	--> when user trys to hit un-authorized resource proir to login
+		--> SpringContextPersistanceFilter will check if Springsecurity context available or not
+			if it is not vailable then its means no authentication so it will create empty SpringSecurityContext Obj
+			and this empty object will be populated to SecurityContextHolder object
+		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
+		--> then it will go to AuthenticationFilter. it will check if any authentication details found in holder.since here no details found,it will pass
+		--> then it will go to RemembeMeFilter. it will check if any remember cookie. if no it will pass
+		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> FilerSecurityInterceptor will check if  resource is secured. since it is unsecure  it will hand over again
+			to SpringContextPersistanceFilter
+		--> SpringContextPersistanceFilter will check if any update in SpringSecurityContext. if its still empty
+			it will remove it from SecurityContextHolder object
+			
+	--> when user trys to hit secure resource proir to login
+		--> SpringContextPersistanceFilter will check if Springsecurity context available or not
+			if it is not vailable then its means no authentication so it will create empty SpringSecurityContext Obj
+			and this empty object will be populated to SecurityContextHolder object
+		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
+		--> then it will go to AuthenticationFilter. it will check if any authentication details found in holder.since here no details found,it will pass
+		--> then it will go to RemembeMeFilter. it will check if any remember cookie. if no it will pass
+		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> FilerSecurityInterceptor will check if  resource is secured.since it is secure it will check if user authenticated.as its not aithenticated
+			it will throw AuthenticateException
+		--> since Exception raised it will be taken up by ExceptionTransaction filer
+			it will deligated to Authentication EntryPoint. thare can be multiple entry points.here it will redirect to Login Url
+		--> SpringContextPersistanceFilter will check if any update in SpringSecurityContext. if its still empty
+			it will remove it from SecurityContextHolder object
+			
+	--> when user submits login credentials
+		--> SpringContextPersistanceFilter will check if Springsecurity context available or not
+			if it is not vailable then its means no authentication so it will create empty SpringSecurityContext Obj
+			and this empty object will be populated to SecurityContextHolder object
+		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
+		--> then it will go to AuthenticationFilter. since it is a authentication request, 
+			--> it will deligated to bean AuthenticationManager by supplying and returning authentication object in authenticate Method
+			   -->it will hold the Principle and credentials,user details..etc
+			   -->and then it will deligate to AuthenticationProvider to authenticate details
+					--> provider will deligate to UserDetailsService Bean wich will retrive details from in memory/database/lDap..etc
+					--> Provider will authenticate based on details and handover to AuthenticationManager
+			--> it it is authnticated AuthenticationManager will inject the Authentication object 
+				with holds Priciple and authorities to Security context and put it to its threadLocal and session
+				
+	--> when user hit secured resource after success login with required role
+		--> SpringContextPersistanceFilter will check if Springsecurity context available in session
+			since its authorized it will be available and 
+			that will be populated to SecurityContextHolder object and kept in ThreadLocal(thread local needed as service layer dont have access in session)
+		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
+		--> then it will go to AuthenticationFilter. it will pass
+		--> then it will go to RemembeMeFilter.it will pass
+		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> FilerSecurityInterceptor will check if  resource is secured.since it is Authenticated it will check for access roll by
+			deligating to AcessDecitionManager to grat access for submited user it its fine then resouurce will be accessed
+	
+	--> when user hit secured resource after success login with-out required role
+		--> SpringContextPersistanceFilter will check if Springsecurity context available in session
+			since its authorized it will be available and 
+			that will be populated to SecurityContextHolder object and kept in ThreadLocal(thread local needed as service layer dont have access in session)
+		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
+		--> then it will go to AuthenticationFilter. it will pass
+		--> then it will go to RemembeMeFilter.it will pass
+		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> FilerSecurityInterceptor will check if  resource is secured.since it is Authenticated it will check for access roll by
+			deligating to AcessDecitionManager to grat access for submited user since its not in required role
+			it will throw AccessDenideExceprion.that will be taken care by ExceptionTrasaction Filter by returning error page
+			
+
+--> Form based authentication:
+	--> just add below dependency so that automaticlly spring will redirect to form based authentication for ur service
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+	--> by default it will create user as username with user role. pwd will be printed in console
+	--> to have our own credentials add below properties in yml or properties file
+		spring:
+			security:
+				user:
+					name: siva
+					password: secret
+	--> Web securityConfigurerAdaptor is the one to secure your resource
+		--> by default there is a dummy class fo which set forbased security.which is auto configured
+		
+--> To wiring our own security configuration
+		--> extend securityConfigurerAdaptor and override configure with http input for configure
+		--> authenticationManager,AuthentcationProvider and UserDetailsService are the main bean to secure our resources
+
+--> basic authentication
+	--> write our config class exteds WebsecurityConfigurerAdaptor and overide configure method
+			
+			protected void configure(HttpSecurity http) throws Exception {		
+		
+					http .authorizeRequests() 
+					.anyRequest().authenticated() 
+						.and() .httpBasic();
+						}
+				to give our own un and pass
+					spring:
+						security:
+							user:
+								name: siva
+								password: secret
+								
+--> secure with digest authentication
+	--> here autherization header contains digestive formula
+		--> hash1 =MD5(username:realm:password)
+		--> hash2 = MD5(method:DigestedURI)
+		--> response = MD5(hash1:nonce:hash2)
+			--> nonce is provided by server in intial interation/handshaking process
+	--> we need to configure one more confguration whic type(extends) is WebsecurityConfigurerAdaptor to inject  digestive Filter
+		--> if you are defining more than 1 security configuration we need to give order by using @Order(<order number>)
+		--> usivally we can defind what king of sesouces can be pass to digestive and what can be pass tp basic
+	--> below object/bean need to be inject inorder to have digestive
+		--> DigestiveAuthenticateEntryPoint to configure realm name and key (bath values are userdefined)
+		--> PasswordEncoder(interface) bean
+			--> implementations
+				--> new BCryptPasswordEncoder()
+				--> NoOpPasswordEncoder.getInstance();
+				--> then override userDetailsSericeBean() as bean and return super method
+	--> then override configure method which has AuthenticationBuilder input
+			--> here we can set whre are users fom like inmemory/jdbc/ldap with user role
+	--> now configure DigestAuthenticationFilter object by defining as method and suppy entrypoint and userdetails bean for this filtering
+	-->  now finally override confugure method with HttpSecurity to configure digestive File
+	
+--> We have sevaral encoders to encode passwords while insetinf the password we are prefixing with type ex: {noop}password
+	--> if you prefixing type into password we can deligate endoder to passwordencoderFactories
+			public PasswordEncoder pwdAutoencoder() {
+					DelegatingPasswordEncoder encoder =(DelegatingPasswordEncoder) PasswordEncoderFactories.createDelegatingPasswordEncoder();
+					return encoder;
+				}
+	--> decoder simple contains map for identifier and algorithem.default is bcript
+
+--> JDBC user Authentication
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.jdbcAuthentication()
+			.dataSource(DataSource)
+			.passwordEncoder(pwdAutoencoder())
+			
+	}	
+
+--> to bypass webserity to cess any css/webjars.html pages
+	--> override 
+		configure(WebSecurity web){
+			web.ignoring().antMatchers("/css/**","/webjars/**")
+	
+--> making server https	
+		
+	--> jks generation for https
+		--> keytool -genkey -alias tomcat -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore mykeystore.p12
+	--> copy that p12 file to resourse location 
+	--> and configure ssl in properties
+			server:
+				port: 8082
+				ssl:
+					key-store-password: password
+					key-store: classpath:mykeystore.p12
+					key-store-type: PKCS12
+					key-alias: tomcat
+	--> https handshake
+		--> clent will send hellow request to server
+		--> server will send certificate which contains user and publickey details
+		--> client will generate random session key and encript with public key of server
+		--> server will decript with private key and hold on this randam session key
+		--> random encription key is a symecric encription that mean encription and decrition posible by same key
+		--> server will send response by encriting with sessionKey
+		--> client will decript with same key as only browser knows that key
+		--> noe onwards clint will encript request by public key and server respose encripted by sessionKey
+	--> to make auto direct to https we need to configure ServletWebServerFactory and redirect Using Connector object
+
+--> Spring cloud vault
+	--> to keep all our secrets 
+	--> it will secure our keys
+	--> its a vault server
+	--> we have to install the vault server separatly
+	--> run valut server with available config *.hcl
+	--> set Vault_address as system variable to locate vault server with port
+	--> need to generate token and unseal the vault
+	--> then we can store your properties as key value pairs in vault server
+	--> then in your project add dependency of vault-config
+	--> create bootstrap.yml to specify your application and configs server locations
+		--> it will load before application.props/yml
+		--> normally it will hold spring.cloud.config.uri and spring.application.name
+	--> here we are poing vault server with below property
+		cloud.vault.host : localhost
+					.port :8200
+					.scheme:http
+					.token : <token>
+	--> then we can retrive values from vault server with ${key-store-property}
+	
+--> OAUTH2
+	--> terminology of 4 actors in other 2
+		--> resouce Owner
+			--> actual user who have owner ship on resource
+		--> Client
+			--> the one who want to acces the resouce on behalf of resource owner
+		--> Authorization server
+			--> the server how can validate your access
+		--> Resource Server
+			--> the server which holds your resource
+	--> 4 grant types
+		--> authorization code grant
+			--> client should register with authorization server and have its own id and secret
+			--> client can provide redirection uri
+			--> when ever user want to autherize with autherntication server. client will rediret to login page of authentication page
+			--> RO submit credentials
+			--> authentication server will ask to grant on request scopes(like contacts/profile/imgage reads)
+			--> then autherization server will generate auth key with required scopes and redirect to
+				redirect URI provided by client
+			--> client will request for accesss token from autherntication with auth code and client code and cliend code
+			--> authorization server will issue access token by validating ciient
+			--> clinet can access the resource with autorization token in resources server
+			--> when ever client request resouce from resource server.resource server will check with authentication server
+			--> if that is valid authentican server will provide  details of the user and scopes to resource server as json
+			--> then resoure server will give requested data to client
+		--> Client-credential grant
+			--> its kind of client deling with resouce servers. i.e., client using 
+				finctionalities of resouces managed by integral partner
+			--> for ex.. we are ingerating with XM api
+			--> here there is no need of generating autho code with involues resouce owner permission
+			--> so authentication server will give directly access token to client with client credentials
+		
+		--> Resource Owner password grant
+			--> here there is no involvement for third party authentication 
+			--> as client have its own data base to maintain resouce owner details
+			--> App sould be trusted
+		--> Implecit grant
+			--> its more on java script accessibility
+	--> OAuth 2 config for google client
+		--> add dependency of oauth2 client
+		--> register with google server with our client credentials
+		--> keep those details in application properties
+				spring:
+					security:
+						oauth2:
+							client:
+								registration:
+										google:
+											client-id: <<client-id>>
+											client-secret: <<client-secret>> 
+		--> confifure the other in HttpSecurity configure method of adapter
+			--> .and().oauth2login().loginpage("/login").successHandler(oauth2authSuccessHandler) // handler is our class
+		--> our oauth handler should implement AuthenticationSucesssHandler
+		--> here we can read the details send by google and store it to your local tables
+		--> and then write the redirection statergy by using redirectioin statergy
+		--> in your UI you will give the URI for google authentication page
+		--> client id will be taken from above mentioned appricaltion propery 
+	--> Our own Authorization server
+		--> it is also one rest endpoint 
+			--> one endpoint for give token to client : /oauth/token
+			--> one endpoint for autorize authcode : : /oauth/token
+			--> one end point to verify token from resource server :/oauth/checktoken
+		--> write one configuration class
+			--> anote with  @AuthorizationServer
+		--> extends the AuthorizationServerConfigurerAdapter
+			--> override method Configure with ClientDetailsServiceConfigurer
+				--> here you can ser which client and grantypes redirectURis scopes ..etc
+						public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+											clients.inMemory()
+											.withClient("way2learnappclientid")
+											.authorizedGrantTypes("password","authorization_code") //password means resource owner password
+											.secret(encoder().encode("secret"))
+											.scopes("user_info")
+											.redirectUris("https://localhost:8443/myapp/login/oauth2/code/way2learnappclient")
+											.autoApprove(false)
+											.and()
+											.withClient("microclient")
+											.authorizedGrantTypes("password","authorization_code","client_credentials")
+											.secret(encoder().encode("secret"))
+											.scopes("user_info")
+											.redirectUris("https://localhost:8443/myapp/login/oauth2/code/way2learnappclient")
+											.autoApprove(false);
+			--> set the context path in microservices to maintain token data
+					server:
+						port: 8081
+						servlet:
+							context-path: /auth
+						session:
+							cookie:
+								path: /auth
+			--> add nasic authentication base base authentication details
+			-->now when ever you need a token request with grant type  body/query (as key value pairs) based on grant type provided
+				--> grant_type : client_credentials/password/authorization_code
+			--> token will be received as barer token
+			--> if grant type is password then we need to supply id and password in body
+			--> to make auth server to generate JWT tokens we need to configure Tokenstore

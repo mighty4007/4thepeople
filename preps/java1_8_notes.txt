@@ -1,0 +1,430 @@
+------------------------------------------------------- :Java 8 Features: --------------------------------------
+
+--> 1.8 majorly focused on concise(minimize) code
+--> consizing achived by enabling by functional programing
+--> java compramized object oriented by enbling functional programing to hold the market
+--> lamda expressions are key for functional programing
+
+Key concepts of 1.8
+
+1)Lambda Expressions
+2)Functional Interface
+3)Default and Static methods
+4)Predefined Functional Interfaces
+	--> Predicate
+	--> Function
+	--> Consumer
+	-->	Supplier ..etc
+5)Double colon Operator(::)
+	--> its a method/constructure referance
+6)Streams
+	--> Intermediate Operations :
+		map(), filter(), distinct(), sorted(), limit(), skip()
+	--> Terminal Operations :
+		forEach(), toArray(), reduce(), collect(), min(),
+		max(), count(), anyMatch(), allMatch(), 
+		noneMatch(),
+		findFirst(), findAny()
+7)Date and Time API
+8)Optional Class
+9)Nashron javascript engine
+
+
+------------------------------------------------------------ -Lambda Expressions- -------------------------------------------------------------
+--> lambda expressions is an anonymous function
+		--> names less
+		--> without return type
+		--> without modifiers
+--> its based on lambda calculus in 1930s
+--> first program language used labda expression is LISP
+--> symbol used for lambda expression is ->
+
+--> examples of lambda expression conversion from function
+	
+	Function:											Lambda conversion:
+	
+1)	public void method(){								()->{sout("hellow");} (or) ()-> sout("hellow")
+		sout("hellow");
+	}
+	
+2)  public void m1(int a,int b){						(int a,int b)-> sout(a+b) // some times compiler can able to guess argument datatypes
+		sout(a+b)										(a,b)->sout(a+b)		 // its based on context we may have to mention argument datatypes
+	}
+	
+3) public int squareit(int a){							(int a)->{return a*a;} // if u r using bracket({}) we must write return statement and semicolon has to be their
+		return a*a;										(int a)->  a*a;  // if one line without bracket return is not required
+	}													(a)->a*a
+														 a-> a*a // if single input no need of paranthesis
+														 
+4)	public int m1(String s){							s->s.length();
+		return s.length();
+	} 
+	
+--> calling lambda expression
+		--> Functional interface must needed to call lambda expression 
+		
+	Functional Interfaces:
+		--> Runnable,Comparable,Comparetor,Callable are few examplesof functional interfaces[all are having only single abstract method]
+		--> Functional interface must have have only single abstact method.
+		--> Functional interface can contain any number of default and static methods but it should contain only one anstract method
+		--> Java 8 allows the interfaces to have default and static methods. The reason we have default methods in interfaces is to 
+			allow the developers to add new methods to the interfaces without affecting the classes that implements these interfaces
+		--> in java 8 we can use @FunctionalInterface for define functional interface (its optional.if you are using its validate the rules of 
+			FunctionalInterface)
+		--> functional interface can he inherited if child dont have abstract method.its valid if the same method is overrided
+			Example:
+			
+			valid:											invalid:
+		
+		1)	@FunctionalInterface						@FunctionalInterface						
+			interface A{								interface A{
+				public void m1()						public void m1()
+			}											}			
+			
+			@FunctionalInterface						@FunctionalInterface
+			interface B extends A {						interface B extends A {
+															public void m2()
+			}											}
+			
+				
+		2)	@FunctionalInterface
+			interface A{
+				public void m1()
+			}
+			
+			@FunctionalInterface
+			interface B extends A {
+				public void m1()
+			}
+		
+		3)	@FunctionalInterface
+			interface A{
+				public void m1()
+			}
+			//interface will be act as normal interface
+			interface B extends A {
+				public void m2()
+			}
+	Lamda Expression with FunctinalInterface:
+		--> if we have functional interface we can directly inplement that method in required class insted of  implementing in other class
+		
+			Treditinal:											InvokingLamda:
+			
+		1)	interface Inter{									interface inter(){
+				public void m1();									public void m1();
+			}														}
+			
+			class A implements inter{							Class Final{
+				pulic void m1(){									public static void main(String[] arg){
+					sout("implemented by A")							inter i=()->System.out.println("implemented by A");
+				}														 i.m1();}
+			}														}
+			Class Final{
+			public static void main(String[] arg)
+				Inter i = new A();
+				i.m1();
+			}
+	
+	Multi threading:
+		--> threding can be implemented by 2 ways
+				--> by implementing Runnable interface
+				--> by extending Thread class
+				
+		Treditinal:														byLamda:
+		
+		Class Myrunnable implements Runnable{							Class Test{
+			public void run(){											public static void main(String[] arg){
+				for(int i=0;i<10;i++){										Runnable r=()->{
+					sout("Child Thread");											for(int i=0;i<10;i++){
+				}																		sout("in child thread");
+			}																			}
+		}																			};
+																			
+		Class Test{															Thread t= new Thread(myRun);
+			public static void main(String[] arg){							for(int i=0;i<10;i++){
+																			sout("in Main Thread");
+				Myrunnable myRun = new Myrunnable();						}
+				Thread t= new Thread(myRun);								 }
+				t.start();													}
+				
+				for(int i=0;i<10;i++){
+					sout("in Main Thread");
+				}
+			}
+		
+		}
+		
+	Comparator: (its used to do sorting data)
+		--> it containt compare method which returns int
+				--> int compare(Object obj1,Object obj2)
+						--> returns -ve iff obj1 has to come before obj2
+						--> returns +ve iff obj1 has to come after obj2
+						--> returns 0 iff both are equal
+						
+										
+		Treditinal:															byLamda:
+		
+		Class myComparator implements Comparator<Integer>{					Class Test{
+			public int compare(Integer i1,Integer i2){						public static void main(String[] arg){
+				if(i1<i2){ returns -1}										Comparator c=(i1.i2)->{ logic of sort}
+				elseif(i1>i2){return 1}										List l1  = new ArrayList();	
+					else return 0;											l1.add(1);l1.add(3);l1.add(2);	
+				// return (i1<i2)?-1:(i1>i2)?1:0;(alternative)				Collections.sort(l1,c)
+				}															sout(l1);
+			}																			}
+		}																			
+																			
+		Class Test{															
+			public static void main(String[] arg){							
+																			
+				List l1  = new ArrayList();	
+				l1.add(1);l1.add(3);l1.add(2);															
+				Collections.sort(l1,new myComparator)								 
+				
+					sout(l1);
+				}
+			}
+		
+		}
+		
+	With Object:(sort the emp objes based on emp no)
+	
+		Lambda expression:
+		
+		Class Employee(){
+			private String ename;
+			private int eno;
+			
+			Public void Employee(String ename,int eno){
+			
+			 this.ename=ename;
+			 this.eno=eno;
+			}
+			
+			public String toString(){
+					return name+":"+eno
+			}	
+		}
+		
+		Class Test(){
+		
+			P S V M( str[] ar){
+			
+			List<Employee> l = new ArrayList<Employee>();
+				l.add(new Employee("ramu","2"))
+				l.add(new Employee("ramu1","1"))
+				l.add(new Employee("ramu22","22"))
+				l.add(new Employee("ramu4","4"))
+				
+				sout (1) // it will print name and eno insted of obj has code as we are over ridden toString Method
+				
+				Comparator<Employee> c =(e1,e2)-> (e1.eno <e1.emo)?-1:(e1.eno >e1.emo)?1:0;
+				
+				Collections.sort(l,c)
+				Collections.sort(l,(e1,e2)-> (e1.eno <e1.eno)?-1:(e1.eno >e1.eno)?1:0);
+				Collections.sort(l,(e1,e2)-> e1.ename.compareTo(e2.name)); // name sorting using name alphabatical
+
+				sout(l);
+			
+			}
+		}
+		
+--> Anonymous Inner Classes Vs Lambda expressions		
+	--> lamba expression is not replacement of anonymous inner class
+	--> anonymous inner class is more powerfull than lambda expression
+	--> anonymous inner classes/interfaces are used fot instant use
+	--> examples of anonymous class
+			
+			Thread t = new Thread(){
+				...........
+			};
+			--> above snipet means we are writing a class that extends Thread calss namelessly
+			
+			Runnable r = new Runnable() {
+				public void run(){
+				sop ("in side child")
+				}
+			};
+			
+			Runnable r =
+				()-> {sop ("in side child"):;
+		
+			--> above snipet means we are implementing the Runnable interface with out any name
+			
+	--> Anonymous Inner Classes is powerfull as it cam be used even interface is not a functional interface
+	
+
+---------------------------------------------------------------------- :Default and Static methods in Interface: -------------------------------------------------------------
+
+--> from 1.8 version default and static methods are allowed
+--> from 1.9 private methods also allowed
+--> all variables are public static final in all versions.only methods are enhanced
+--> Default Method
+		--> its also called as virtual extention method and Defender Method
+		--> its optional to override in implemented class
+		--> inclusion of default methods are wont effet the implemted classes
+		--> default keyword only allowed in interfaces. its different from default access specifier.
+		--> here default means method has default implementation
+		--> in implementation class override also we should not mention default keyword
+		--> object class methods cannot be made default methods in interfaces
+		--> how will be implemented class manage if the implemented interfaces has same default method.
+				--> if implemented class override the default method then it will refer implemented class method,
+				--> if you want to use the default method which is available in  perticular inferface. we can achive by super
+				--> Ex:
+					interface A {
+						default void m1(){
+							sop("from A inteface")
+						}
+					}
+					interface B {
+						default void m1(){
+							sop("from B inteface")
+						}
+					}
+					Class C implements A,B{
+						public void m1(){
+							A.super.m1();
+							//B.super.m1();
+						}
+						
+						main(){
+							C c =new C();
+							c.m1();
+						}
+					}	
+					
+					output: from A inteface
+--> Static method
+		--> by allowing the static method inside the Interface. we can move the static methods to interface as it is a light weight component
+		--> static method of interface not available for implemented.so static methods of interface should be called only with interface name
+		--> static method of interface can be called in unimplemented classes aswell.
+		--> even main method also can be placed in interface and invoke it
+		--> static method of interface  best fit for utility methods
+		--> --> Ex:
+					interface A {
+						public static void m1(){
+							sop("from A inteface static method")
+						}
+					}
+					
+					Class C implements A{
+						
+						main(){
+							A.m1();
+							m1(); // invalid
+							C.m1(); //invalid
+							C c= new C();
+							c.m1();//invalid
+						}
+					}
+
+------------------------------------------------------------------- Predefined Functional Interfaces ------------------------------------------------------
+
+--> some Imp predefined functions
+	--> Predicate
+		--> its for conditional checks 
+			--> Predicate<Integer> p = i -> i % 2 == 0; // here Integer is Inputed Object
+				System.out.println(p.test(11)); //o/p: false
+		--> we can combine two predicate to single by using and/or/negate
+		--> only one input argument
+		
+	--> Function
+			--> it is to address for every input value perform some operation and produce result
+			--> inyerface Function<T,R>
+				{
+					public R apply (T t);
+				}
+			--> you must define return type aswell
+			--> we can cobine multiple functions
+					-->f1.andThen(f2).apply(i) --> first f1 then f2
+					-->f1.compose(f2).apply(i) --> first f2 then f1
+	--> Consumer
+		--> it will take input but not return any thinf
+		--> interface Consumer<T>{
+				public void accept(T t);
+				}
+		--> we can call function inside functions
+		
+	--> Supplier
+		--> it wont take any input and produce result
+			--> interface Supplier<R>{
+				public R get()
+			}
+		-->
+	
+--> Two argument predefined functional inteface (it will help to deal with 2 input arguments remaining are same as above)
+	--> BiPredicate
+	--> BiFuction
+	--> BiConsumer
+	
+--> Primitive FI (if you are deling with primitive integer values then you can go with below to avoid burden of auto boxing)
+	--> Int/Long/doublePredicate [we dont have bipredicate in primitive]
+	--> Int/Double/Long/Fuction --> return type can any thing
+	--> DoubletoInt/DoubleToLong/Function..etc -- > input and return type is predefined
+	--> TointBi/toLongBi/Function ..etc  --> return type fixed.	input can be anything
+	--> Int/Double/Long/Consumer ..etc  --> input is predefined
+	--> ObjDouble/ObjLong/ObjInt/Consumer --> secound argument predefined
+	-->int/boolean/long/double/Supplier --> return type fixed
+	
+--> UnaryOperator
+	--> its child of Fuction
+	--> if input and output are same type then we will go for unaryOperator
+	--> it has primitives also
+			--> Int/Double/Long/UnaryOperator --> input and output are fixed.
+--> BinaryOperater
+	 --> inputed 2 arguments and returntype also same type
+	 
+
+------------------------------------------ : Method and Constructor referance : -----------------------------------------------------------------
+
+--> Method and Constrctor referance is alternative/replacable for lambda functions to reuse
+--> method reference can be done done on static and instance method.syntax vary
+		--> className::MethodName -->static method
+			Runnable r = RunBody::m1; // Here m1 method of RunBody no need to be inplement Runnable interface.but it must match input arfuments
+			Thread t = new Thread(r);
+			t.start();
+		--> ObjectReferance :: MethodName --> non- static
+--> input argumants must match (method name/return can differ)
+--> constructor referance 
+	--> Classname::new
+	--> if method method returns objec then we can go for constructor referance
+	--> for argumented Constructor argument must match
+		--> inter i= Classname::new
+			i.methodname("pass parameters")
+	--> ConRef cref = RunBody::new;  // for default constructor call
+		System.out.println(cref.getObj().i);
+		
+		ConRef_Arg crefArg=RunBody::new;
+		
+		RunBody r1= crefArg.getObj2(50); // its with argumented construtor
+		RunBody r2= crefArg.getObj2(500);
+		System.out.println(r1.i+":::::"+r2.i);
+		
+-------------------------------------------------------------------------- : Optional Class: -------------------------------------------------------------------
+--> it is public final class
+--> it is not participating in inheritance
+--> Advantages
+	--> better way to handing null checks
+	--> avoid potential null pointer exceptions
+	--> Avoid boilerplate coding
+	--> clean code and easy to read and understand
+--> 	String s1 = "hellow";
+
+		if (s1 != null) {
+			System.out.println(s1.toUpperCase());
+		}
+
+		// above check using optional class
+
+		Optional opt = Optional.ofNullable(s1);
+		if (opt.isPresent())
+			System.out.println(opt.get().toUpperCase());
+
+----------------------------------------------------------------- : Date And Time API : -------------------------------------------------------------------------
+--> new API defined to use date and Time very effectivily and easy. its called JODA Time API
+--> to get the localDate current date/Time
+	--> LocalDate date = LocalDate.now();
+		LocalTime time = LocalTime.now();
+-->its provinding several date time retival functionalities
+--> period is introduced to find the differences 
+--> ZoneId is to get specifice country times

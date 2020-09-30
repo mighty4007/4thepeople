@@ -1,0 +1,815 @@
+1)-------------------------- JVM Architechecture -----------------------
+
+-->Java file flow:  java source file --> Java compiler --> java class file
+
+--> Class loader sub system sequence [input for this subsystem is .class file,it uses Jvm to do all these activities
+		--> Loading
+			--> Boot strap Class loader
+				-->core java APi will be loaded here(rt.jar)
+			--> Extension Class loader
+				 -->ext files will be loaded
+			--> Application C.L
+				--> enviromment variable loding.. application level
+		--> Linking
+			--> verify
+				--> ex. virus scannin
+			--> prepare
+				--> memory allocation and assined with default values..etc
+			--> Resolve
+				--> all symbolic reference replace with original in method areas
+		-->Initialization
+			-->inialization
+				--> static secution, original values ..etc
+			
+--> verious memory areas of JVM
+		--> Method Area (not thread safe)
+			--> Class data [1 or more]
+		--> Heap Area(not thread safe)
+			--> Object Data[1 or more]
+		--> Stack Area (for every thread there will be a stack). its thread safe
+			 --> Thread data(stack)
+					-->stack frame
+						-->local veriable array
+						--> frame data
+						--> operand stack
+		--> PC Registers (every thread have its own PC register)
+		--> Native Method stacks(every thread have its own Native Method stacks)
+		
+--> Execution engine (jvm and exe engine communicate each other)
+		--> Intrepreter
+		--> JIT compiler
+			--> sqquence of operation
+				--> intermediate code generator
+				--> code optimizer
+				--> target code generator
+				--> machine code generator
+		--> Profiler
+		--> Garbage collector
+
+--> Native method library
+		--> it will be comunicated from execution engine via java native interface(JNI)
+---------------------------------------------------------------------------------------------------------------		
+
+------------------------------------------------------------------------ : Serialization : ---------------------------------------------------------------------------------
+
+--> Serialization is  the process of saving state of an object into a file/nw supported form. [convertion of java supported form into file/network support form]
+    vice versa is deserialization
+--> Fileoutput[write into the file] and ObjectOutput[converion of binary] streams need to implement Serialization
+	--> FileOutputStream fos = new FOS("filename.ext");
+		ObjectOutputStream oos = new OOS(fos);
+		oos.writeObject(<<Serializable Object>>)
+	
+--> FileInput[Read into the file] and ObjectInput[converion of object] streams need to implement De-Serialization
+	--> FileInputStream fis = new FIS("filename.ext");
+		ObjectInputStream ois = new OIS(fis);
+	    SerializableObject ob= (SerializableObject typecast)ois.readObject();
+--> if you are using Object stereams,object must implement interface
+--> transient modifier only for variables.its used to hide the value of variable.during serialization transient varible stored with default values.(not mally to hide
+	passwords,pins ...etc )
+--> as static varible is not state of object its not patispate in serialization. so even you declare static variable as transient still you will get original value.
+	so its not useful if you are making static as transient.
+--> final variable are replaced with values in compile level itself.so its not useful if you are making final as transient.
+
+--> we can serialize any number of objects but constrains are	
+		--> During deserialization time we have to type cast into the same order of serialization. order must follow or else class cast exception
+			--> oos.writeObject(<<serializable Object1>>)
+			    oos.writeObject(<<serializable Object2>>)
+			    SerializableObject1 ob1= (SerializableObject1 typecast)ois.readObject();
+			    SerializableObject2 ob2= (SerializableObject2 typecast)ois.readObject();
+		--> if we dont know order of objects in serilization. we need to use Object referance
+			 --> FileInputStream fis = new FIS("filename.ext");
+			     ObjectInputStream ois = new OIS(fis);
+			     Object obj= ois.readObject();	
+				 if( obj intanceof SerializableObject1){
+					SerializableObject1 ob1= (SerializableObject1 typecast)obj
+					..........
+				 }
+				 if( obj intanceof SerializableObject2){
+					SerializableObject2 ob2= (SerializableObject2 typecast)obj
+				 }
+
+--> Object Graphs in serialization
+	--> if the serialization object has the instance of other objects . then iternally it will create all the instace of those objects.
+		these group of obj called as Object graph.
+	--> those instance class also should be serializable
+
+--> Serialization Customization
+	--> in default serialization there is a chance of loss of data due to transient.
+	--> to recover these info we need to go for customized serialization
+	--> in customization we will encript the value and stored into file separatly during serialization.During de-serialization we need to decript and assign that value to 
+		variable.
+	--> Customizationcan be done by implementing below methods(there are callback functions)
+		--> private void writeObject(OOS os) throws Exception :  called by JVM automatically during serialization.signature should be same
+		--> private void readObject(OIS is) throws Exception	:called by JVM automatically during De-serialization.signature should be same
+			Class Account imolements Serializable{
+				String username ="a";
+				int pin=123
+				transient String password="pwd"
+				 private void writeObject(OOS os) throws Exception {
+					os.defaultWriteObject();
+					String epwd ="123"+Password
+					int epin =4444+pin;
+					os.WriteObject(epwd);
+					os.WriteInt(epin);
+				 }
+				 
+				  private void readObject(OIS is) throws Exception{
+					is.defaultReadObject();
+					String epwd =(Strinf)is.readObject();
+					int epin = is.readInt();
+					pwd= epwd.subString(3);
+					pin = epin -4444;
+					
+				  }				
+			}
+			
+			// abouve serialization/deserialization code
+
+--> Serialization w.r.t inheritence			
+	--> if parent is serializable then by default child classes will be converted to serializable
+	--> GenericServelet is serializable.  most of all servelt classes in java extends Generec serverlet so serlets are serializable
+	--> Object didnt implement serializable
+	--> to serialze child class no need to be make parent as serializable
+		 --> during serialization JVM will check is any instance variable is inheriting from non-serializable parent or not.if any variable inheriting from non-serializable
+			parent then JVM ignores Original values and Save Default Value to file
+		 --> JVM performs instant contrl flow for every non serializable parent at the time of de-serialization
+				--> instance control flow
+						--> identification of instace member
+						--> Execution of instance variable assignments and instance blocks
+						--> Execution of no argument constuctor 
+				--> so here the value will be what ever the value in parent will be injected to deserialized object
+		--> if you are overrloading constructor compiler wont generate default constructor. in above case if u overloding parent constructor then it will throws
+			Invalid class exception as its looking for default constructor as part of intance control flow
+		
+--> Externalization
+	--> in serialization all the members will be serialized.part of object serailization is not possible
+	--> programmer dont have control over serailization as JVM will take care of every thing
+	--> to over come above we will go for externalization
+	--> as its allowed us to store part of the object deserialization is respectivly provide more performance
+	--> Ext ernalization and serialble came in 1.1 version only
+	--> Externalizable is child interface of Externalizable
+		--> Externalization
+			--> we need to implement Externalizable
+				--> writeExternal();
+					--> calls at the time of serialization
+					--> to save the required properties to file
+				--> readExternal();
+					--> calls at the time of deserialization
+					--> to read required variables from the file and assigne to the corrunt object
+	--> during Seralization time, required variable stored by callin writeExternal();
+	--> During De-serialization JVM will create the new object and assign the variables by calling readExternal();
+	--> Exnernalizable object must contain the default constructor or else it will throw invalid class exception
+	--> transient keyword not required in Externalization as the developer exclusivily storing elements
+
+--> SerialVersionUID
+	--> its for to solve the problem of 
+		--> if sender and receiver are not the same
+		--> if sender and receiver are not in same location
+		--> if sender and receiver are not in same machine/java version
+	--> the same seriablizable .class should be available in both sender and receiver
+	--> JVM automatically created unique Id for every seriablizable object suring serailization
+	--> during de-serialization JVM cross verify with version Id. if not matches it will throw exception 
+	--> if sender and receiver in different location/different machines then there is a high probability of mismatch as Unique ID in local machine.
+	--> problems of depending on default serialVersionUID by JVM
+		 --> Both send and receiver should use same version of JVM
+		 --> Both send and receiver should use same .class vesion
+	--> if u are using private static final long serialVersionUID = 1L; JVM not insted of generation. it will use existing one. its higly recommeded
+		to use serialVersionUID
+	
+
+-------------------------------------------------------------- : Multi threading : --------------------------------------------------------------------------------------
+
+--> 2 types
+	--> process based --> sinultaneous execusion of independing pressess [OS level suitable]
+	--> thread based  --> execiting multple task in same program
+--> how can define thre
+	--> by extending thread class
+			--> override run method to define thread --> the code with in run method is called job
+			--> to start thread t.start(); if u are stating in Main then main thread create child thread and runs it
+	--> by implementing runnable (recommended as it will have inheritance benifit) 
+			--> implement run method
+--> Thread Scheduler is part of JVM to scedule threads(algorithem depends on JVM)
+		--> order of thread is dependend on thread sceduler. we dont have any control on it
+--> t.start() vs t.run()
+	--> we you are using t.start() it will start new thread. follow is the sequesnce
+		--> Register this thread with thread schedular
+		--> perform all other mandatory activities
+		--> invoke run method
+		--> start method always call run() method only. over loaded run method wont be called
+		--> if you override start() then out start method will be executed as normal method and new thread wont be created
+		--> t.run() its like normal method execution
+--> Thread life cycle
+	--> new/born [ new thread()]
+	--> Ready/runnable [t.start()]
+	--> Running [thread scheduler picked up]
+	--> Dead [completion of run()]
+--> After starting a thread, if we are trying to start same thread then we will get run tim exception saying illegalStateThreadException
+--> thread calss constructors
+	--> new Thread();
+	--> new Thread(Runnable r)
+	--> new Thread(String name);
+	--> new Thread(Runnable r,String name)
+	--> new Thread(ThreadGroup g,String Name)
+	--> new Thread(ThreadGroup g,Runnable r)
+	--> new Thread(ThreadGroup g,Runnable r, String name)
+	--> new Thread(ThradGroup g,Runnable r,String name,long stackSize)
+	
+--> getting and setting name of thread
+	--> every thread in java has some name.it will be generated by jvm if we are not provided.
+	--> we can get and set name of a thread by using the following two methods of thread class
+		--> public final String getName();
+		--> public final void setName(String name)
+
+--> thread Priorities
+	--> its range from 1 to 10
+	--> 1 is min priority 10 is max proirity
+		--> Thread.MIN_PRIORITY :1
+		--> Thread.NORM_PRIORITY :5
+		--> Thread.MAX_PRIORITY :10
+	--> we can customize priority for each Thread
+		-->public final int getProirity();
+		-->public final void setProirity(int p);
+				--> allowed range 1 to 10.other than it will throw run time Exception
+	--> Default Proirity for main thread is 5. remaining all thread are inherited from main thread.so all thread have default proiry is 5
+	--> by default all OS may not support thread proirity.  we may need to get patch from OS to support
+	
+--> Methods to prevent thread execution
+	--> yield() :  public static native void yield()
+		--> it causes to pause current exeuting thread to give the chance for waiting threads of same proirity
+		--> if threre is no waiting thread or all waiting threads have low priority, then same thread can continue its execution
+		--> if multiple threads are waiting with same proirity,then which waiting thread will get the chance we cant expect. its depends on thread schedular
+		--> The thread which is yielded,when it will get chance once again,its depends on thread schedular and we cant expect exactly
+		--> when its executed life status of thread will back to ready state from running state
+		--> Some platorm wont provide support for yield method
+		--> it will enter to ready state
+		
+	--> join() : public final void join() it has two more override methods to specify time for wait
+		--> if one thread need to wait to complete other thread to complete then we should go for join method
+		--> if t1 wants to wait utill t2 completion then t1 has to call t2.join()
+		--> if t1 executes t2.join() then imediatly t1 will be enter into waiting state untill t2 complete
+		--> once t2 complete, then t1 can continue its execution 
+		--> if main thread calls join method on child thread object and child thread call join method on main thread object then blth thread will wait forerver
+			and program will go to deadlock situation
+			
+	--> sleep() : public static  native void sleep(long ms),public static   void sleep(long ms,int ns)
+		--> if thread dont want perform any operation for a perticular amount of time then we should go for sleep method
+		--> every sleep method throws interepted exception witch is checked exception.
+		
+--> a thread an intrupt a sleeping thread or waiting thread by using public void interupt() of thread class. interrupt will wait till thread enter into sleep or wait state
+
+--> synchronized
+	--> its modifier for only methods not for classes and variables
+	--> we can have synchonized as blocks
+	--> if multiple threads triying to operate simulatneously on the same java object then there may be chance of data inconsistensy problem
+		to overcome we should go for synchonized keyword
+	--> the main advantage of synchonized keyword is, we can resolve data inconsistency problems.but the main disdavantage is it increases waiting time of threads and 
+		creates performance problems.hence if there is no specific requirement then its not recomandded to use it
+	--> internally synchronization is implemented by using lock.every object in java has a unique lock.
+	--> when ever we are using synchonized keyword then only lock will kickoff
+	--> JVM will be taken care of locking and unlocking on object
+	--> only synchonized methods are locked during lock process.
+			--> even object has multiple synchonized method and one thread accessed one synchonized method. remaing synchonizedmethods are also locked 
+				till that thread completion
+			--> if its normal method, then lock wont interfere access
+	--> synchonize only works if multiple threads try to access same object. if it static then it become synchronized behaviour even if it have different object
+	--> class level lock: every class in java has a unique lock which is also known as class level lock. its works on static synchonized methods
+	--> Synchronized Block
+		--> to isolate spefic line of codes to make synchonized insted of making whole method
+		--> to get lock of current object synchonized(this){---}
+		--> to get lock of perticular object synchonized (object){---}
+		--> to get class level lock synchonized(<<ClassName>>.class){--}
+		--> lock is vaild for objec and class types but not for primitives.hence we cant pass primitive type as argment to sync block
+	--> Race condition: it is the problem of data inconsistansy due to multi thread access
+	--> A thread can acquire multiple locks of diffent objects
+	--> synchonized statement is the statements present in synchonize method or block
+	
+--> Intrathread communication
+	--> two threads can communicate each other by using wait(),notify(),notifyAll() methods which is part of Object class
+	--> the thread which is expecting update is to call wait() then till it got update it will be enter to waiting state
+	--> the thread which is performing update,after done with update it is responsible to call notify(), then waiting thread will get that notification and its execution
+		with those updated items
+	--> wait,notify,notifyAll methods preasent in object class but not in thread class because thread can call these methods on any java object
+	--> to call these methods on any object,thread should be owner of that object i.,e thread should have lock of on that object i.e, 
+		thread should be in synchonized block.
+	--> so these methods must be called in synchonized block otherwise we will get iilegalMonitorStateException
+	--> if a thread calls wait method on any object, it immediatly releases the lock of that perticular object and entered into waiting state
+	--> if a thread calls notify method on any object it releases lock of that object but may not immediatly
+	--> except wait,notify,notifyAll theres no other method where thread releases the lock
+	--> which of it valid
+		--> if a thread calls wait method,immedialy it will enter into waiting state without releasing any lock-->invalid
+		--> if a thread calls wait(),it releases the lock of that object but may not immediatly --> invalid
+		--> if a thread calls wait() on any object,it releases all locks acquired by that thread and imediatly entered 
+			into that state --> invalid(it will releas on that obj)
+		--> if a thread calls notify() on any object it imediatly release lock of that perticular object --> invalid
+		--> if athread calls notify() on nay object it releases lock of that obj but may not immedialy --> valid
+		
+	--> wait() throws InrreptedException
+		--> public final void wait() : wait till notify
+		--> pulic final native void wait(long ms) : wait till that time
+		--> public final void wait (lonf ms,int nn) : till that time
+		--> after entring into waiting state then it will wait will nofify once it got notify then it will enter to another waiting state to get the lock
+			once it got lock then it will enter to ready state
+			
+	--> notify()
+		--> public final native void notify()
+		--> piblic final native void notifyAll()
+		--> it is to contine execution from wait method
+		
+	--> notify() vs notifyAll()
+		--> we can use notify() to give notification for only one waiting thread.if multiple threads are waiting then only one thread will be nofied and remaining threads 
+			have to wait for further notifications. notifining thread will be random based on JVM
+		--> we can use notifyAll() to give the notification for all waiting threads of a perticular object. even though multiple threads are notified
+			but execution will be performed one by one.because threads required lock and only one lock is available
+	--> on which are we are calling wait() thread required lock of that perticular object
+	
+--> DeadLock
+	--> if 2 threads are waiting for each other forever. such type of infinite waiting is called deadlock
+	--> synchonized keyword is the only reason for deadlock situation.hence while using synchonized key word we have to take special care.
+	--> there is no resoution but serveral preventions are their
+	--> Deadlock vs starvation
+		--> long waiting forever process is deadlock
+		--> long waiting till some point of time is starvation
+
+--> DeamonThread
+	--> the thread which is executiong background is DeamonThread Ex: Garbage collection,AttachListener
+	--> the main objective of deamon theads are to provide support for non-demon threads ex: main thread.for ex,if main thread runs with low memory then JVM runs GC
+		to distroy useless objects so that number of bytes are free memory will be improved
+	--> usually deamon thread having low proirity but based on our requirement demon threads can run with high proirity also
+	--> public void setDaeMon(boolean b) --> we can change deamon nature of a thread using ths method. but changing daemon nature is possible before 
+		starting of a thread only or else it will throws IllegalThreadState Exception
+	--> Default nature of thread
+		--> by default main thread is non-daemon thread.its child threads are inherited from parent to child by default.
+		--> its not possible to change daemon nature of main thread as it automaticallly started by JVM and change nature only possible before thread start
+	--> when ever last non-daemon thread teminates automatically all Daemon threads will be terminated irrespective of their position
+
+--> Green Thread
+	--> the thread completly managed by JVM (with out depending on OS) is called Green thread model or else called as Native OS model
+	--> its not supported by most of the OS. so its not suggestable to use. any how its deprecated
+	--> sun solaris OS supports for Green thread model
+	
+--> Thread.public final void stop() : its to make the thread to dead state.its not recommadable to use any how its deprecated
+--> Thread.public final void suspend() : it is make thread to suspended state its not recommadable to use any how its deprecated
+--> Thread.public final void resume() : it is to make suspended thread to resume. its not recommadable to use any how its deprecated
+
+--> Multi threading enhancement
+	--> ThreadGroup:
+		--> Based on functionality we can group threads into a single unit which is called ThreadGroup
+		--> ThreadGroup can contains multiple threads and subgroup of threads as well
+	--> every thread in java belongs to some group. main thread belongs to main group 
+	--> every thread group in java is the child group of system group either directly or indirectly. hence system group act as root for all thread groups in java
+	--> system group contains several system level threads like garbage collector(finalizer),referance handler,signal dispatcher,attach listner..etc
+	-->  system group
+		--> main thread group
+			--> main thread
+			--> thread-0 ..etc
+			--> sub thread group
+				--> t1
+				--> t2....etc
+		--> finalizer
+		--> referance hanler
+		--> signal dispatcher..etc
+		
+	--> ThradGroup class is direct child of Object class
+		 --> Constructors
+			--> ThreadGroup g= new ThreadGroup("FirstGroup") : create new thread group with specified group name. the parent of this new group is the thread group of 
+				current executing thread
+			--> ThreadGroup g1= new ThreadGroup(parent, name); to assign the parent of created thread group
+		--> key methods in ThreadGroup class
+			--> String getName(): getting name
+			--> int get MaxPriotity() : return max proirity of thread group
+			--> void setMaxProirity(int p) : to set max priority of tghread group. the default max proirity is 10. threads in the thread group that have already have
+				highrt proirity wont be effected but newly added threads,this max prority is applicable
+			--> void list() : it prints info about thred group to the console
+			--> int activeCount() : retrns  no of active threds present in threadgroup
+			--> int activeGroupCount() : retrns  no of active groups present in threadgroup
+			--> int enumerate(Thread[] t) : to copy all active thread od this thread group into provided thread array.sub thread group threads also considered
+			--> int enumerate(ThreadGroup[] g) : to copy all active sub thread groups into ThreadGroup array
+			--> boolean isDaemon() : to check the daemon or not
+			--> void setDaemon() :to set demon
+			--> void interrupt() : to interrupt all waiting/sleeping thread present in tha thread group
+			--> void destroy() : to destry thread group and its sub thread groups
+
+	--> java.util.concurrent package
+		--> the problems with treditional synchonized keyword
+			--> we are not having any flexibility to try for a lock without waiting
+			--> there is no way to specify maximum waiting time for a thread to get lock so that thread will wait untill getting the lock
+				which may create performance problems which may cause deadlock
+			--> if a thread releases a lock then which waiting thread will that lock is uncontrollable
+			--> there is no API to list out all waiting threads for a lock
+			--> synchonized keywork must be used either method level or with in the method and it is not posible to use accress multiple methods
+			--> to over come these probles  ad other problems and enhanced over thread some people introduced java.util.concurrents.locks pkg in 1.5 version
+			
+	--> Lock interface (from 1.5 available)
+		--> lock object is similar to implecit lock acquired by a thread to execute synchonized method/block
+		--> it provide more flexibily than treditional locks
+		--> key methods
+			--> void lock() : it is to acquire a lock. if lock is already available. then imediatly current thread will get that lock.if lock already
+				available then it eill wait utill getting the lock. it is exactly same behaviour of traditional synchonized keyword
+			--> boolean tryLock() : to acquire the lock without waiting. if lock available then thread acquires that lock and returns true.if not its false and 
+				its continue its operation
+				if(t.trylock())
+				{
+					perform safe operations
+				}else { perform alternative operation}
+			--> boolean t.trylock(long time,TimeUnit unit): if lock is aviaibale then thread will get lock and it continue its execution.if not then thread will wait
+				untill specified amount of time.till lock is not available then thread can continue its execution
+				--> TimeUnit is an enum present in Java.util.concurrent pkg
+			--> void lockInterruptibly() : acquires the lock if it is available and returns imediatly.if lock is not available then it will wait 
+				while waiting if thread is interrupted then thread wont get the lock
+			--> void unlock(): to release the lock. to call this method compulsory current thread should be owner of the lock or else it will throw IllegarmonitorState ex
+			--> ReentrantLock is the implemented class of lock interface and direct child class of Object
+				-->reentrant means a threaad can aquires same lock multiple times without any issue.internally reenranct lock increments threads personal count
+					when ever we call lock method and decrements count value when ever thread calls unlock method and lock will be released when ever count releases 
+					count zero
+				--> Constructors
+					--> ReentrantLock l= new ReentrantLock(): creates an instance.
+					--> ReentrantLock l= new ReentrantLock(boolean fairness) : create objcet with given fairness policy.if fairness is true then longest wating thread 
+						will get the lock if it is available or else random pick up
+						--> defaultvalue of fairness is false
+				-->  key methods of ReentrantLock
+					--> void lock()
+					--> boolean tryLock()
+					--> boolean t.trylock(long time,TimeUnit unit)
+					--> void lockInterruptibly()
+					--> void unlock()
+					--> int getHoldCount() : returns no.of returns on this lock by current thread
+					--> boolean  isHeldByCurrentThread() : returns true if and only lock is hold by current  thread 
+					-->int getQueueLength() : returns no.of threads waiting for the lock
+					--> Collection getQueuedThreads() : returns collection of threads which are wating to get lock
+					--> boolean hasQueuedThreads() : retursn true if any thread waiting to get lock
+					--> boolean isLocked(): return true if lock is acquired by some thread
+					--> boolean isFair() : return true if fairness policy set with true value
+					--> Thread getOwner() : returns Thread which acquired lock
+					
+	--> Thread Pools (Executor Framework)
+		--> creating a new thread for every job may create performance and memory problems. to overcome these we should go for thread pool
+		--> Threadpool is a pool of already created thread ready to do our job
+		--> java 1.5 version introduces Thread pool framework to implement thread pools
+		--> threadpool frame work also known as executor framework
+		--> we can create pool using 
+			--> ExecutorService s= Executors.newFixedThreadPool(3)
+		--> we can submit a runnable job by using submit method s.submit(job)
+		--> we can shutdown executor service by using shutdown() :s.shutdown()
+		--> while desiging webservers and web servers we can use thread pool concept
+	
+	--> Callable and Future
+		--> in the case of runnable thread wont return anything after completing the job
+		--> if a thread is required to return some result after execution,then we should go for callable
+		--> callable interface contains only one method call() : public Object call() throws Exception
+		--> if we submit callable job to executor then after completing the job, it will return an object of the type Future i.e., Future objcet can be used to
+			retrive the result from callable job
+	
+	--> Runnable                                vs                                  Callable
+		--> if thread dont have any retursn										--> if thread need to return value
+		--> only one method run()												--> only one method call()
+		--> return type void													--> return type Object
+		--> introduced in 1.0													--> in 1.5
+		--> run method wont throw any exception as per parent					--> it thows checked exception 
+			signature
+			
+	--> ThreadLocal
+		--> ThreadLocal class provides ThreadLocal variables.
+		--> TL class maintains values per thread basis
+		--> each TL object maintains a seperate value like userID,transactionsID..etc for each thread that access that object
+		--> Thread can access its local value,can manipulate its value and even it can remove its value
+		--> in every part of the code which is executed by the thread,we can access its local variable
+		--> Ex: consider a servlet which invokes some bussiness methods, we have a requirement to generate a unique transaction ID for each and every request
+			and we have to pass this transaction ID to the bussiness methods. for this requirement we can use thread local to maintain a seperate transaction ID
+			per every request ie., for every thread
+		--> TL class introduced in 1.2 version and enhanced in 1.5 version
+		--> TL can be associated with ThreadScope
+		--> total code which is executed by the thread has access to the corresponding thread local variables
+		--> A thread can accesss its own local variables and cant access other threads local variables 
+		--> once thread enters to dead state all its local variables are by default eligible for garbage collection
+		--> Constructors
+			--> ThradLocal tl= new ThreadLocal() : create a thread local variable
+		--> methods
+			--> Object get() : returns the value of the TL variable asscociated with current thread.
+			--> Object initialValue(): returns initial value of thread local variable asscociated with current thread . the default implements of this method 
+				returns null. to customize our own value we have to this below methood
+			--> void set(Object newValue) : to set new value
+			--> void remove() : to remove the local value associated with current thread.it is newly added method in 1.5 version.after removal
+				if we are trying to access it will be reinitialized once againg by invoking its initial value method
+		
+	--> ThreadLocal   vs  InheritableThreadLocal
+		--> parent threads local variable by default not availble to child thred .if we want parent threadlocal variable available to child thread then we should
+			go for InheritableThreadLocal
+		--> by default child thread value exactly same as parent thread. but we can provide customized vallue by overriding childMethod()
+
+-------------------------------------------- : Garbage collection : ---------------------------------------------
+
+--> Introduction
+	-->  in ld languages like c++,programer is responsible to create and destroy useless objects.usually programer very much care while creating objects 
+			and neglecting destuction.in java GC will be taken care of destructing objects 
+			
+--> the ways to make an object eligible for GC
+	--> even though programer is not resposible to destroy useless objects.its higly recomandded to make an object to eligible for GC if it no longer required
+	--> an object is said to be eligible fot GC if and only if it dont contain any referance variable
+		--> Objects created inside method
+			--> these objects are by default eligible for GC after execution of that method
+		--> method returns onject
+			--> locally created objects are eligible for GC assigned one is not eligible
+		-->Island of isolation
+			--> even thoug internally object referances inside the object pointing to other objects and not having atleast one external referance then its
+				eligible for GC.see the example
+	--> the following are various ways to make an obje eligible for GC	
+		--> assign null to object (nullifying the referance variable) 
+		--> re-assign new objec to existing object to make old object eligible for GC (re-assign the ref variable)
+		--> short-circuit operators (&&,||) : 
+			--> & : it will evaluete all condions
+		--> && : if first one is false then it wont evalute second option
+		
+--> the methods for requesting JVM to run GC[no guarentee that JVM will accecpt gc request immedialy]
+	--> By using System class (System.gc())
+	--> by using Runtime class[performance wise recommandable]
+		--> its singleton 
+		--> by factory method only we can create Object
+--> Finalization
+	--> GC will call finaliza method before destroying object
+	--> finalize() is protected methods available in object class with empty implementation. thows Trowable
+	--> we need to override finalize() to write our cleanup activity
+	--> if we call finalize() explicitly. but it will behave like normal method.object wont be destroyed
+	--> if finalize() rised exception .gc will ignore that exception.if probrammer calls its throw exception.
+		if handlined in catch then GC will execute catch
+	--> Gc calls only ince finalize method
+
+-------------------------------------------- :Exception Handling: ---------------------------------------------
+
+--> runtime stack machanism
+	--> to run the java program should contains atleast one thread
+	--> every thread have own stack methods will be stored in stack (stack frame/activation record)
+	--> once threads execution completed in stack it will be removed from stacks
+	--> once all methods execution completes
+	--> JVM will be responsible for creating empty stack and destroy.
+	
+--> default exception handling in java
+	--> the method which is raising exception is responsible for creating Exception Object and hand over to JVM
+	--> if Exception not handling in method.JVM will terminate method abrrubtly and removes from stack
+	--> JVM looks for called methods if that method not hadled that Exp jvm removes called function from statck till it reaches end
+	--> if none is handlied exception JVM will be resposible to handle exception
+	--> JVM will handover the exception to DefaultExceptionHandler which will simply print messages in console and terminate program
+	
+--> Exception hirarchy
+	--> Throwable (root class)
+		--> Exception (exceptions caused by application. it can be recoverable)
+			--> RuntimeException
+				--> NullPointerEx
+				--> NoclassFoundE
+				-->IndexOutofboundEx ..etc
+					--> ArrayIndexOOBE
+					--> StringOOBE
+			--> IOException
+				--> EOFExce
+				--> FileNotFoundEX
+			--> InterruptedException ..etc
+			
+		--> Error (exceptions caused by infrastructure/lack of system resources and its non-recoverable)
+			--> VMError
+				--> StackOverflow
+				--> OutofMemory
+			-->LinkageError
+				--> VerifyError
+			-->AssersionError
+			-->ExceptionInInnitilizationError ..etc
+
+--> Checked vs UnChecked Exceptions
+	--> both are happens in runtime only .
+	--> The exceptions checked by compiler if the programer is handling or not called as checked Exception
+	--> by default Error and its child Exceptions are un checked exceptions
+	--> by default Runtime and its child Exceptions are unchecked Exceptions
+	--> Remaining are all checked Exceptions
+	--> partially checked Exceptions
+		--> if parent must be checked and childs needs not to be checked.Exception,Throwable are the only partially checked Exception
+
+--> control flow in try-catch
+	--> if try having 10 statements and after catch, 11 statement is their. if exception raised at statement 3 then it will continue from 11 statement all the statements
+		in try block after exception raised statement remaining statements are skipped.
+		
+		class Test{
+			p s v main(s a[]){
+			try{
+				statement 1
+				statement 2
+				statement 3
+			}catch (Ex e){
+				statement 4
+			}	
+				statement 5
+			}
+		}
+		
+		Cases:
+		1)--> if there is no exception :  1,2,3,4,5,Normal termination
+		2)--> if exception raised at stmt 2 : 1,4,5,Normal termination
+		3)--> if exception raised at stmt 2 and corresponding catch block not matched : 1,abnormal termination
+		4)--> if Exception raised at stmt 4 or 5 : 1,2,3,abnormal termination
+
+--> method to print ex info
+	--> part of Throwable class
+		--> e.printStackTrace()
+			contains : name of Exception:Descriptionand  stack trace
+		--> e.toString();
+			contains : name of Exception:Description
+		--> e.getMessage()
+			--> only Description
+		
+--> try with multiple catch block
+	--> multi catch blocks are recommanded insted of partial checked exceptions
+	--> order of catch block should be child to parent
+
+--> finally block
+	--> finally should be followed by try or catch block
+	--> finally vs return statement
+		--> after returns nothing with be executed after that
+		--> if try are catch having return statement then it will execute finally then return
+		--> if finally has return statement then only finally block return will be considered
+	--> finally vs System.exit(0) : 0 : normal termination, any other number is abnormal termination
+		--> if System.exit(0)(JVM will be shutdown) the finally wont be executed
+
+--> Diff bte final finally and finalize
+	--> final key word to make constrant
+	--> finally is block to handling exception
+	--> finalize is method to handling GC
+	
+--> control flow in nested try-catch-finally
+
+	class Test{
+			p s v main(s a[]){
+			try{
+				statement 1
+				statement 2
+				statement 3
+				
+				try{
+				
+					stmt 4
+					stmt 5
+					stmt 6
+				} catch(Ex e){
+					stmt 7
+				}finally {
+					stmt 8
+				}
+				
+				stmt 9
+				
+			}catch (Ex e){
+				statement 10
+			}finally{
+				stmt 11
+			}
+				statement 12
+			}
+		}
+		
+		Cases:
+		1)--> if there is no exception :  1,2,3,4,5,6,8,11,12 Normal termination
+		2)--> if exception raised at stmt 2 : 1,10,11,12 Normal termination <here innaly finally block wont be executed>
+		3)--> if exception raised at stmt 2 and corresponding catch block not matched : 1,11,abnormal termination
+		4)--> if Exception raised at stmt  5 and corresponding catch block matched :1,2,3,4,7,8,9,11,12, NT
+		5)--> if an exception raised at stmt 5 and inner catch block not matched but outter catch block matched :1,2,3,4,8,10,11,12,NT
+		6)--> if exception raised at stmt 5 and both inner and outter catch block not matched : 1,2,3,4,8,11,AT
+		7)--> if exception raised at stmt 7 and corresponding catch matched :1,2,3,x,x,x,8,10,11,12,NT
+		8)--> if exception raised at stmt 7 and corresponding catch block not matched :1,2,3,x,x,x,8,11,AT
+		9)--> if exception raised at stmt 8 and corresponding catch block matched :1,2,3,x,x,x,x(7),10,11,12,NT
+		10)-> if exception raised at stmt 8 and corresponding catch block not matched :1,2,3,x,x,x,x(7),11,AT
+		11)-> if exception raised at stmt 9 and corresponding catch block matched :1,2,3,x,x,x,x,8,10,11,12,NT
+		12)-> if exception raised at stmt 9 and corresponding catch block not matched :1,2,3,x,x,x,x,8,11,AT
+		13)-> if exception raised at stmt 10 : AT but before that finally 11
+		14)-> if exception raised at stmt 11 or stmt 12 :AT
+		
+	valid combination
+	--> try{}catch(X e){}
+	--> try{}catch(X e){}catch(Y e){}
+	--> try{}catch(X e){}finally{}
+	--> try{}catch(X e){}catch(Y e){} try{}catch(X e){}catch(Y e){}
+	--> try{} finally{}
+	--> try{}catch(X e){}catch(Y e){}finally{}
+	--> try{try{} catch(X e){}}catch(Y e){}
+	--> try{try{} catch(X e){}}catch(X e){}
+	--> try {} catch(E e){try{}catch(E e){}}
+	--> try {} catch(E e){} finally{{try{}catch(E e){}}}
+	
+	
+	invalid combination
+	--> try{}catch(X e){}catch(X e){} : X exception already been caught[Compilation Error]
+	--> try{} : try without catch or finally [CE]
+	--> catch(X e) : catch without try[CE]
+	--> finally{} : finally without try[CE]
+	--> try{}finally{}catch(X e){} : catch without try[CE]
+	--> try{}try{}catch(X e){}finally{} : try without catch or finally [CE]
+	--> try{}catch(X e){}finally(Y e){}finally{} : finally without try[CE]
+	--> try{} stmt 1 catch(X e) : try without catch or finally,catch without try[CE]
+	--> try{}catch(X e){} stmt 1 finally{} : finally without try[CE]
+	--> try{}catch(X e){} stmt 1 catch(Y y){} : catch without try[CE]
+	--> try{try{}}catch(E e){} : try without catch/finally[CE]
+	--> try onlyOnestmt catch(E x){}
+	--> try {} catch(E x) onlyOnestmt
+	--> try {} catch(E x){} finally onlyOnestmt
+	
+	--> if theres is no chace of raising an exception then we cant write catch block for that Exception(for fully checked exception)
+		try{sysout("stmt")} catch(IOException e){e.getMessage()} : in valid
+	
+--> throw keyword
+	--> its for customized exception
+	--> to handle our own exception to hand over to JVM manually
+	
+--> throws keyword
+	--> to delicate resposibility of exception handling to the caller
+	--> it is only to convince compiler and its usage doesnot prevent abnormal temination of the program
+
+--> ex handling keywords summery
+	--> try   		: to maintain risky code
+	--> catch 		: to maintain hadling code
+	--> finally 	: to maintain clean up code
+	--> throw		: to hand-over our created exception object to JVM manually
+	--> thorows		: to deligate responsibility of exception handling to the caller
+
+--> final vs finally vs finalize()
+	--> final
+		--> for classses : it will not allowed to extend that class
+		--> for Methods	 : we cant override in the child
+		--> for variable : become constant
+	--> finally
+		--> it is a block associated with try catch
+		--> to write cleanup code
+		--> it will execute irrespective of exception occured or not
+		
+	--> finalize():
+		--> its for GC to call before destroying the object
+
+--> Customized Ex
+	--> recommended to extends RuntimeException as it will become unchecked Exception .so its wont be asked to hadling Exception
+
+--> top -10 ex
+	--> ArrayIndexOutOfBoundsException : unchecked and child class of IndexOutOfBoundsException -->RuntimeException
+	
+	--> StackOverFlowError : child class of VirtualMachineError -->Error 
+		--> when ever we are calling recursive methods. to methods are calling each other
+		
+	--> NoClassDefFoundError : subclass of LinkageError -->Error
+		--> if java not found .class file then it will throw this Ex
+		
+	--> ClassNotFoundException : while creating object with new Instance method
+	
+	--> ExceptionInInitializerError : child calss of LinkageError -->Error
+		--> while performing static variable initilization and static blocks execution if jvm faces any exception 
+			--> static{ String s= null; s.length()} : it will throw ExceptionInInitializerError caused by NullPointerException
+			
+	--> IllegalArgumentException : child class of RuntimeException
+		-->if we are invoking method with illegal arguments
+		
+	--> IllegalStateException : (e)--> RunTimeException
+		--> if we are trying to call method in wrong time
+		--> Thread t= new Thread(); t.start();t.start() : calling start aon already started method caused this Exception
+		
+	--> AssertionError : error is super calss
+		--> while debugging Assert statement fails
+
+--> 1.7 version enhancements
+	--> try with resources
+		
+		-->  before 1.7
+			BufferReader br ;
+				try{
+					br = new Bf(new FR("input.txt"));
+				} catch(Exception e){}
+				finally{
+						if (br != null)
+						br.close();
+				}
+				
+				--> complexity,lengh of code ande readability issue
+				
+		-->  from 1.7
+				try( BR br = new Bf(new FR("input.txt") ){
+						br.somethig........
+				}catch(E e){..}
+				--> once comtrol reaches end of the try block.autometically br will be closed.we are not required to close explicity
+				
+		--> we can take any number of resources into try block bit should be seperated with ";"
+		--> AutoClosable: the corresponding class should Implement java.lang.AutoClosable interface, BufferReader implemented java.lang.AutoClosable interface
+			--> only one method close()
+		--> what ever resouces defined in try block implecitly finally. we cant re assign new values to resources defined in try
+		
+		
+		--> from 1.9 we need not be declare/initilize the object with in try block
+			BR br = new Bf(new FR("input.txt")
+				try(br){
+						br.somethig........
+				}catch(E e){..}
+		
+	--> multi catch block
+		--> before 1.7 it is must to follow catch ot finally for try block. from 1.7 try with resouce is allowed to not to have catch and finally
+		--> below is possible for below syntax
+			try{} catch (ArithmeticException|NullPointerException|InterruptedException e) { e.ptintstack()}
+			catch (Exception|ArithmeticException|NullPointerException|InterruptedException e) --> in valid. there should not be parent child realtion of mentioned Exception
+
+--> Exception Propagation 
+	-->  the process of propagating from exception raised  method to caller method
+	
+--> Re-throwing Exception 
+	--> conversion of one Exception to another
+	
+	try{ sout(10/0);} catch(ArithmeticException e){ throw new NullPointerEx()}
+

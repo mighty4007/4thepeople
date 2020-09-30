@@ -1,0 +1,666 @@
+1. what is default keyword in class
+2. difference between abstract and interface
+3. can abstract have constructor
+4. what is difference between array list and linked list
+5. how hash map works internally
+6. what is multithreading
+7. explain spring MVC flow
+8. difference between error and exception
+9. what is Bean
+10.what is dependency injection
+11. what is design pattern used in your project
+12. what is ORM and importance
+13. explain JPA
+14. what is throws keyword 
+15. what is wrapper class
+16. how dependency injection arrived (configuration )
+17. what is restful webservices
+18. what is difference between controller and rest controller
+19. what is spring mvc architecture , explain
+20. what is @qualifier keyword
+21. difference between treeset and hash set
+22. what is scope of spring bean annotation
+23. what is comparable and comprator functionalities
+24. how to sort an employee with age, sal using comparator
+25. in howmany ways string object can instantiate.
+		--> two ways
+			--> String str ="Hi"
+			--> String str = new String("Hi")
+				--> it creates two objects (in String pool and in heap) and one reference variable where the variable ‘s’ will refer to the object in the heap
+				--> if we want to change the referance to string pool, we can use intern() method. String str = new String("Hi").intern();
+26. what is super class and its usage
+27. queryparameter and path parameter difference
+28. Put and Post, Get difference in restful
+29. difference between post and patch
+30. what is the flow control when we hit a web url from browser
+31. can instantiate abstract class
+
+32) is static method can be overridden?
+	--> no not possible as a static mentho is not associated with any instance of the class
+33) why string is immutable?
+	--> State cannot be changed in immutable
+	--> if we tried to edit any String object. it will create new object and store the new data.it has to be assined to new referace to utilize it.
+	--> its for optimization by using string Constant pool[memory optimization]
+			--> when ever you are initilizing the string it will be stored in string constant pool in heap memory
+			--> it will not allow duplicate object data in order to have cache feature
+			--> if duplicate object found .insted of creating new object it will simple pointing the reference to already existing object
+			--> if any operation done on any string object. it will not update existing object as the other referances are pointing to same objec.so result will be generated
+				in heap area. so it must to tag referance to any operation on string in order to see the change
+	--> String hashcode caching
+	       --> string hashcode will be calculated only one time in application
+		   --> to generate hash code it will read every char in string. this hash code will be stored inside string object
+		   --> this will help for hashmap searching optimizaton,if you are using String as Key
+34) Comparator vs Comparable
+		--> Comparable usually used to utilize default sorting
+		--> Comparator uselly used to write our own sorting logic by bypassing default sorting
+		--> Predefined Comparable classess(Ex: String) Sorting can be override by Comparator
+		--> Predefined Non-Comparable classess(Ex: StringBuffer) Sorting can be override by Comparator
+		--> Our Own Obj(Employee)
+			--> the person who is writing class will implement comparable in order to provide default sort
+			--> the person who is using our class will implement comparator in order to customize sort
+		-->
+35) diff btw == and equal()
+		-->== ment for reference or address comparision
+		-->.equal is content comparision
+		
+36) what is eventual consistancy and strong consistancy
+	--> eventual consistensy is perioid data maintanance.when ever we are querying we may get outdated information.
+		but it has very low latency as there is no need to updated data badly and have the data till that last periodic event
+	--> stong is whwn every we are quering updated the infor from that periodic event.it will have updated into
+		but it has high latency as data need to be updated while querying
+		
+37) what is CAP therom
+38) which senario hibernate throw lazyinitialization error
+39) how to resolve issue of convering monolic to microservices with proxy 
+40) is their any way to know the performance of the method (i.e., execution time) in spring
+41) how can you safe guard the card details in request
+42) clusterd vs non clustrud index
+43) is streams have better performance?
+44) virtual machine vs container and what do you mean by image
+	VM :
+		--> VM uses hypervises to manage your Vms 
+		--> you can add as much as hw as possible
+		--> each VM has its own OS
+		--> OS dependency for APP is tied up with OS it self	
+	Container:
+		--> contains single operating system
+		-->	there is a docker engine in operating system
+		--> OS dependency for APP can be tied up with App
+		--> it will layer your infra hw and sw. so that each container projected as its own slice of HW and SW
+		--> contains  name spaces and Cgroups
+		
+45) what is actaually instance
+46) network loadbalancing and application load blancing. which one have better performance 
+47) where do you use cache in microservices
+48) how do you handle service fails
+49) how do you chose data base
+50) ways to create object
+	--> using new key word
+	--> using myObj ob=(myObj)Class.forname("test.myObj").newIstance(); 
+		-->its always look for default constructor to create obj
+	--> using newInstance of Constructor class [part of reflect package]
+		--> it can invoke any parameterized constuctor
+		--> it even invoke private construtor in certain cases
+		--> it wrap all the exceptions into single exception InvocationTargetException
+		--> it internally calls Class class newInstance method only
+		--> Constructor <MyObj> con = MyObj.Class.getConstructor();
+			MyObj ob = con.newInstance();
+	--> using clone method of Object class
+		--> we need to implement Clonnable interface and its clone method inside this you can call object class clone method by super.clone()
+		--> constructor not getting cslled here
+		--> myObj ob1 = new myObj()
+			myObj ob2 = (myObj)ob1.clone()
+	--> by using deserialization by using readObject();
+	
+51)	Spring IOC container:
+	-->  spring container and IOC containers are same
+	--> creating an object and injecting that element done by Spring container
+	--> it uses the servicelocator design pattern
+		--> we can maintain registery of all created objets and make it as cache so that when ever its required it will take it froom cache or else create and give it
+			then add to registrey 
+	--> BeanFactory and ApplicationContext are the containers of Spring. these two are interfaces
+		--> XMLBeanFactory ,Simple BeanFactory are one of the implemented class of BeanFactory 
+		--> ClassPathXmlApplicationContext,FileSystemXmlApplicationContext,XmlWebApplicationContext are few imolementation of ApplicationContext
+			--> ConfigurableApplicationContext for spring boot
+			
+52) Spring bean Scopes
+	--> singleton (default)
+	--> prototype : This scopes a single bean definition to have any number of object instances.
+	--> request : This scopes a bean definition to an HTTP request. Only valid in the context of a web-aware Spring ApplicationContext.
+	--> session : This scopes a bean definition to an HTTP session. Only valid in the context of a web-aware Spring ApplicationContext.
+	--> global-session : This scopes a bean definition to a global HTTP session. Only valid in the context of a web-aware Spring ApplicationContext.
+	
+53) Spring Profiles
+	--> goals
+		--> externalized [property files]
+			-->
+		--> Environment Specific
+		--> Consistent
+		--> Version history
+		--> real time management
+	--> by default each spring application have profile called default profile
+	--> naming convention for profile is application-<profilename>.ext
+	--> to make spring profile activate keep spring.profile.activate : test in main application yml
+			--> this propery can be passed in comdline as well >> java -jar app.jar --spring.profile.activate = test
+	--> bean level profiling @Profile("dev")
+		
+
+54)@controller vs @RestController
+	-->The @RestController annotation in Spring MVC is nothing but a combination of @Controller and @ResponseBody annotation
+
+55) Executor services	
+	--> it is a thread pool to submit jobs
+
+56) How to eanble annotations in spring application
+	-->  <context:annotation-config/>
+	
+57) Association and composition and aggregation
+	--> association represents the reltion btw the objects. this association derived as composition and aggregation
+		--> Composition
+			--> It represents part-of relationship.
+			--> In composition, both the entities are dependent on each other.
+			--> When there is a composition between two entities, 
+				the composed object cannot exist without the other entity.
+		--> Aggrgation
+				--> It represents Has-A relationship.
+				--> It is a unidirectional association i.e. a one way relationship. 
+					For example, department can have students but vice versa is not possible 
+					and thus unidirectional in nature.
+				--> In Aggregation, both the entries can survive individually which means ending 
+					one entity will not effect the other entityonal .
+
+58) configuring multiple databases in spring boot
+#Database
+database1.datasource.url=jdbc:mysql://localhost/testdb
+database1.datasource.username=root
+database1.datasource.password=root
+database1.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+database2.datasource.url=jdbc:mysql://localhost/testdb2
+database2.datasource.username=root
+database2.datasource.password=root
+database2.datasource.driver-class-name=com.mysql.jdbc.Driver
+Then define them as providers (@Bean) like this:
+
+@Bean(name = "datasource1")
+@ConfigurationProperties("database1.datasource")
+@Primary
+public DataSource dataSource(){
+    return DataSourceBuilder.create().build();
+}
+
+@Bean(name = "datasource2")
+@ConfigurationProperties("database2.datasource")
+public DataSource dataSource2(){
+    return DataSourceBuilder.create().build();
+}
+
+@EnableJpaRepositories(entityManagerFactoryRef = "userEntityMgr", 
+transactionManagerRef = "userTxnMgr"
+,basePackages = "com.hari.userRepos"
+		)
+		
+we have to configure entitymanager and trasaction manager aswell
+	@Primary
+	@Bean(name = "userEntityMgr")
+	public LocalContainerEntityManagerFactoryBean getEntityMgr(EntityManagerFactoryBuilder enty) {
+
+		Map<String, Object> hbtpros = new HashMap<String, Object>();
+
+		hbtpros.put("hibernate.hbm2ddl.auto", "update");
+		hbtpros.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+
+		return enty.dataSource(getuserDataSource()).properties(hbtpros).packages("com.hari.user.entity")
+				.persistenceUnit("user").build();
+
+	}
+
+	@Primary
+	@Bean(name = "userTxnMgr")
+	public PlatformTransactionManager getTxnManager(@Qualifier("userEntityMgr") EntityManagerFactory entymgr) {
+		return new JpaTransactionManager(entymgr);
+
+	}
+
+59) @SpringBootApplication = It's same as declaring a class with @Configuration, @EnableAutoConfiguration and @ComponentScan annotations
+	
+60) Hibernate states :
+	--> transient state  :  when ever we create object of entity
+	--> persistance State : wven we call save/persistance/update...etc
+		--> session cache/first level cache will we maintained here
+	--> Detatchable State :  to remove object from session
+70) Hibernate persistacne methods
+	--> save : it will return id which is serializable. to store object in table
+	--> persisit : it will also save object but not return any value
+
+71) making Spring boot WAR:
+	--> extend main application with SpringBootServletInitializer 
+		--> override configure method
+			 @Override
+				protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+						return application.sources(DemoApplication.class);
+				}
+		--> <packaging>war</packaging> in POM.xml
+
+72)React-thunk
+	--> its redux implemented logic to delay the responce of the dispatch call
+	--> basically its wrapping actions into function. to make it asynchronces of those actions we can set timeout.
+	--> impart redux-thunk and supplay appaly middleware in store as second parameter
+
+73) controlled vs uncontrolled components
+	--> the component which are bind with state called controlled components
+	--> the comments which are access through ref property of tag called as uncontrolled components
+74) java 8 memery enhancement
+	--> PermGen completely replaced by meta space which will address  out of memory  issue due to permgen
+	--> metaspace is part of java native memory where as permgen is part of heap
+	--> native place is part of server space
+
+75) microservice intercommunication
+	--> RestTemplate
+		-->	 RestTemplate restTemplate = new RestTemplate();
+				String result = restTemplate.getForObject(uri, String.class);
+				System.out.println(result);
+				
+				final String uri = "http://localhost:8080/springrestexample/employees";
+				RestTemplate restTemplate = new RestTemplate();
+				EmployeeVO newEmployee = new EmployeeVO(-1, "Adam", "Gilly", "test@email.com");
+				EmployeeVO result = restTemplate.postForObject( uri, newEmployee, EmployeeVO.class);
+		-->  restTemplate.put ( uri, updatedEmployee, params );
+ 
+    System.out.println(result);
+				
+	--> WebClient (its part of Spring reactive web)
+		-->WebClient webClient1 = WebClient.create();
+			WebClient webClient2 = WebClient.create("https://client-domain.com");
+			WebClient webClient2 = WebClient.builder()
+										.baseUrl("http://localhost:3000")
+										.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+										.build();
+			WebClient webClient = WebClient.create("http://localhost:3000");
+ 
+			Employee createdEmployee = webClient.post()  //.put(),.delete()
+												.uri("/employees")
+												.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+												.body(Mono.just(empl), Employee.class)
+												.retrieve()
+												.bodyToMono(Employee.class)
+												.block(); // to  make it sync call
+	--> fign client
+		--> its like stub creation.we can use that directly
+78) Exception hadling in boot
+	--> using @ControllAdvice and @ExceptionHandlier("ex handler")
+	
+79) how to run preconfigurations before pring application start
+		--> by implementing CommandlineRunner or ApplicationRunner interface
+			--> implement run method
+			--> CLR we can get passed parameters as string
+			--> AR we can get Option names aswell
+
+80) config server:
+		--> we can set up config server by adding dependencies . we need to map repository to config server to locate property files
+			--> @EnableConfigServer
+			--> spring.cloud.config.server.native.searchLocations=file:///C:/configprop/
+			--> spring.cloud.config.server.git.uri: file://${user.home}/config-repo
+			--> accessing the master property file 
+				http://localhost:8888/config-client/default/master
+			--> its default port 8888
+		--> client
+			--> @RefreshScope : to get the updated prople without restatring(actuater provide url to refresh:  http://localhost:8080/refres)
+			--> To map server and specific prop file
+				spring.application.name = config-client
+			    spring.cloud.config.uri = http://localhost:8888
+
+81) Service Discovery: Eureka Server
+	--> it is to monitor registered servers.one eureka server can be monirored other
+	--> Server dependecy
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+	--> client Dependency
+			<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+		
+	--> load balancing can be done with @Loadbalance on resttemplate
+		--> here we shold mention the application name with out port rathen than actual path
+	--> @EnableEurekaServer
+	--> spring.application.name=EmployeeEurekaServer
+		eureka.client.serviceUrl.defaultZone:http://localhost:9091/eureka/ -- optional
+		server.port=9091
+		eureka.client.register-with-eureka=false //// not to make clint for another eureka server
+		eureka.client.fetch-registry=false 
+	--> client
+		--> @EnableDiscoveryClient / @EnableEurekaClient
+		--> bootstrap.properties
+		--> eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+	--> in case of wureka server down, client can run in cache which is self sufficient to handlie request
+	
+		
+82) Unit test of boot
+	--> Junit (for normal controllers)
+	--> Mokit : if any dependecies excies
+	--> Hamcrest  : for integrations frame work
+	
+84) Ribbion CLient Load balancing
+	--> it is to load balancing clinet level
+	--> @RibbonClient(name="ribbonClinet",congfiguration=MyRibbonConFiguration.Class)
+	--> write the MyRibbonConFiguration configuration call
+			public class MyRibbonConFiguration {
+
+				@Autowired
+				IRule irule;
+
+				@Autowired
+				IClientConfig ribbonClinent;
+
+				@Bean
+				public IPing ping(IClientConfig ribbonClinent) {
+				return new PingUrl();
+				}
+
+				@Bean
+				public IRule rule(IClientConfig ribbonClinent) {
+					return new AvailabilityFilteringRule();
+			}}
+
+	--> apply @LoadBalancing on RestTemplate
+	--> add these properties 
+		ribbonClinet.ribbon.eureka.enabled = false
+		ribbonClinet.ribbon.listOfServers = localhost:8081,localhost:8082,localhost:8083
+		ribbonClinet.ribbon.ServerListRefreshInterval:2000
+		
+85) Reverse Proxy
+	--> reverse proxy is a gateway to a server or group of servers
+	--> Reverse proxies provide anonymity for the back-end servers, not the clients. They mask the real location of the servers clients are accessing
+	--> A reverse proxy can perform authentication tasks, as well as cache or decrypt data. In essence, a reverse proxy is a gateway to a server or group of servers
+
+86) Spring HATEOAS
+	--> its is a specifications of next resouce actions in primary or subsequent request. client need not be known the urls/hardcoded
+	--> sample response which is having HATEOAS
+				{
+		  "content":"Hello, World!",
+		  "_links":{
+			"self":{
+			  "href":"http://localhost:8080/greeting?name=World"
+			}
+		  }
+		}
+		 self refe to reltion
+	--> one way is the resounce objects can extend ResourcesSupports and implements serializable to build link
+	--> self link 
+		Link link = ControllerLinkBuilder
+                .linkTo(EmployeeRESTController.class)
+                .slash(employee.getEmployeeId())
+                .withSelfRel();
+	--> method link
+		ResponseEntity<EmployeeReport> methodLinkBuilder = ControllerLinkBuilder
+                .methodOn(EmployeeRESTController.class).getReportByEmployeeById(employee.getEmployeeId());
+        Link reportLink = ControllerLinkBuilder
+                .linkTo(methodLinkBuilder)
+                .withRel("employee-report");
+87) what is JWT
+	--> it is json web token. which will give specification for token format that can hold payload itself
+	--> Session tokens will hold the session ID as referance to deal/authenticate sub sequent requests
+	--> typical jWT contains 3 parts.seperated by "."
+		--> base64 encoded header . whic contained algotrithem used for signature
+		--> base64 encoded payload
+		--> base64 encoded signature
+			--> The signature is used to verify that the sender of the JWT is 
+				who it says it is and to ensure that the message wasn't changed along the way.
+			--> signature formula
+				 HMACSHA256(
+						base64UrlEncode(header) + "." +
+						base64UrlEncode(payload),
+						secretkey )
+88) Bean LifeCycle:
+	--> process flow of BeanLifeCycle
+		--> Container starting
+		--> Bean instatied
+		--> dependency injection
+		--> Custom init method
+		--> Custom Utility method
+		--> Custom destroy method
+	--> in annotation model
+		--> @PostConstruct act as init method
+		--> @PreDestoy for destoy method
+
+89) Annotations:
+	--> @Component : enable class to auto-detect when used annotation based configuration and class path scanning
+	--> @Configuration: indicates that a class declares one or more @Bean methods and may be processed by the Spring container
+					to generate bean definitions and service requests for those beans at runtime. its basically converting your xms conf to calss based
+	--> @Service: This annotation is a specialization of the component annotation. It doesn’t provide any additional behavior over the @Component annotation. 
+					You can use @Service over @Component in service-layer classes as it specifies intent in a better way
+	--> @Repository: This annotation is a specialization of the @Component annotation with similar use and functionality. It provides additional benefits specifically for DAOs. 
+					 It imports the DAOs into the DI container and makes the unchecked exceptions eligible for translation into Spring DataAccessException
+	-->  @SpringBootApplication : @EnableAutoConfiguration+@ComponentScan+@SpringBootConfiguration
+
+90) Redish caching
+	--> Configuring redish server
+		# Redis Config
+		spring.cache.type=redis
+		spring.redis.host=localhost
+		spring.redis.port=6379
+	--> @EnableCaching in main application
+	--> @Cacheable(value = "users", key = "#userId", unless = "#result.followers < 12000") on the methoed which you need to cache
+	--> @CachePut(value = "users", key = "#user.id") : for updating
+	--> @CacheEvict(value = "users", allEntries=true) : for deleting
+91) validation enable annotations:
+	-->@Validated : class level usually controller
+	--> @Valid : usually on request body
+	--> @Size(min=4,message="username atleast 4 caar")
+	--> @Size(min=2,message= "{90001}")
+	
+92) Hiding endpoints in swagger
+	--> @ApiIgnore
+	--> @ApiOperation(value = "This method is used to get the current date.", hidden = true) : default hiddent is false
+	--> @Hidden
+
+93) what are all 12 factor principles : CDCBBPPCDDLA
+	--> 1) Code base
+			--> we should have only one code base for your environments.
+				Git/Svn/Mercurial
+	--> 2) Dependency
+			--> explicetly declare and isolate dependency
+			--> pom.xml  will help keep one place that is .m2 folder
+			--> if we have custome jar , insted of keeping in repository we can use strage repositories like nexus
+			--> place jar in central repository at one place
+			--> we ca use storage repository like jgrog,NeXus for storage of libs
+			--> embeded server in artifact
+	-->3) Config
+			--> store config in Environment
+			--> config server will help us to make environment specific builds
+			--> the configuration and credentials which are environmet specific and frequenrly changing
+				should not stored as part of code
+			--> store in repository and make it available via use of Config Server or if Using PAAS flatform
+				like PCF,store it as environment variables
+	--> 4) Backing services
+			--> treat backing service as attached resources
+			--> any helping services like DB,MessageQueue,cache should be trated as attached resources
+			--> attached resources are easier to plug and play
+	--> 5) Build,Realease,run
+		--> strictly seperate build and run stages
+			--> Ci/CI
+	--> 6) Process
+			--> execure the app as one or more stateless process
+			--> two apps shoud not share anything.it should throuch only endpoints
+			--> if you need to store, Do it in attached resources like DB or Messaging queue or cache
+	--> 7) Port Binding
+			--> export services via port binding
+			--> instred on depending on physical server,each application has embedded server
+			--> you can access severces through embedded server port.
+			--> Apps act as stadalone
+	--> 8) Concurrency
+			--> scale out via process model.it sould be smoot
+			--> like scalling should depending on parameters like number of request/memory utilization...etc
+	--> 9) Disposability
+			--> maximize robustness with fast startup and gracefull shutdown
+			--> startup and shutdown of services should be gracefull
+			--> quick start and shutdown
+			--> Resilience in case of failure
+	--> 10) Dev/prod parity
+			--> keep development,staging and production as similar possible
+			-->in order to avoid parity, better to use containers like Docker to create image and deploy same image
+				to differant env
+	--> 11) Logs
+			--> tret logs as event streams
+			--> ELK
+	--> 12) Admin Process
+			--> Run admin/management tasks as one-off processes
+
+94) String tests
+	test == :true
+	test .equal :true
+	test new == :false
+	test new .equal :true
+	test buffer == :false
+	test buffer .equal :false
+	
+95) Spring Boot - Hystrix
+	--> dependency 
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix</artifactId>
+		</dependency>
+	--> @EnableHystrix : (in main application)
+	--> for fall back method
+		@HystrixCommand(fallbackMethod = "fallback_hello", commandProperties = {
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1000")
+		})
+	--> return and input must match
+	--> alternative for Hystrix is Resilience4j
+
+96) SAGA Pattern
+	--> SAGA stands for  Asequence of local trasactions
+	--> it is to address maintanace of transactional flow between different micro server intercommunication
+	--> to handle data cossistency between services
+	--> to address beloe SAGA will help out
+		--> A single request is spanning over multiple services
+		--> need of atomicity trasaction((location transaction should be rollbacked) and 
+		isolation of concurent transaction(if user initate transaction from different channels) required
+		--> Trasient state of request process between State
+		--> Rollback/Compensaction action in case of failure
+	--> in SAGA Pattern belo are the key points
+		--> each transaction to perticular service is treated as local transaction.so,we
+			have sequnce of local transactions
+		--> Each transaction(saga) updates data with in single service
+		--> Transaction could be sequential or parallel
+		-->this design pattrn designed for lonf running transactions
+		--> mainly 2 types of implementation of SAGA pattern mostly used
+			--> Event/choreograthy based approach
+				--> each of microservice generate event and another listen that 
+					event and perform action based on that event
+				--> it may create cyclic dependency as multple sevices are listing to that event
+				--> generally,Events are Domain based
+				--> each local transaction on sucessfull completion publishes domain event,that in turn trigger 
+					local transaction in next service
+				--> the next services could be single or multiple also,depending on use-case
+				--> in case if fail that perticular sevice will trigger fail even 
+					which can listen by other service to compensate action or rollback and other
+					service can listn this as faulure and parallelly					
+			--> Orchestration/command based approach
+				--> thre will be centralised service to orchestrate to handle requests
+				--> when ever request reached from UT orchistator will geneate the event to that perticular service
+					the listner service will do the process and generate the command for that event and
+					that will be listend by orchistration service and it will generate next event .. so on
+					and finally orchistarot will revert the response to UI
+				--> it is incresing the complexity
+				--> the implementation of orchistration services need tool like Camunda or Finite State Machine 
+				--> smae flow for faulure with failure event listner
+		--> in case of compansate action fails,either we can try retry machanism or massage broker services
+			like KAFKA 
+		--> if we have simple flow then its better to go event
+		--> if we have complex flow and so many microservices then we can use orchestrator
+
+97) Criterion samples
+	--> it is to fram the group of query statements
+		1)  Criteria crit = session.createCriteria(Product.class);
+			List<Product> results = crit.list();
+		2) Criteria crit = session.createCriteria(Product.class);
+		   crit.add(Restrictions.eq("description","Mouse"));
+			List<Product> results = crit.list() //Above query will search all products having description anything but not “Mouse”.
+		3) Criteria crit = session.createCriteria(Product.class);
+		   Criterion priceLessThan = Restrictions.lt("price", 10.0);
+		   Criterion mouse = Restrictions.ilike("description", "mouse", MatchMode.ANYWHERE);
+		   LogicalExpression orExp = Restrictions.or(priceLessThan, mouse);
+		   crit.add(orExp);
+		   List results=crit.list();
+		   
+98) Projections :
+	--> its to apply aggregate function on criterian
+		1) select ename from employee;
+		   Criteria criteria = session.createCriteria(Employee.class); 
+		   Projection projection = Projections.property("employeeName"); 
+		   criteria.setProjection(projection); 
+		  List list = criteria.list();
+		2) select sal,deptid,ename from emp;
+			Criteria criteria = session.createCriteria(Employee.class); 
+			Projection projection = Projections.property("salary"); 
+			Projection projection2 = Projections.property("departmentId"); 
+			Projection projection3 = Projections.property("employeeName"); 
+			ProjectionList pList = Projections.projectionList(); 
+			pList.add(projection); 
+			pList.add(projection2); 
+			pList.add(projection3); 
+			criteria.setProjection(pList); 
+			List list = criteria.list();
+99) SOLID principles
+	--> S: The Single Responsibility Principle 
+			A class should have one, and only one, reason to change.
+	--> O: The Open Closed Principle
+			You should be able to extend a classes behavior, without modifying it.
+	--> L: The Liskov Substitution Principle
+			Derived classes must be substitutable for their base classes.
+	--> I: The Interface Segregation Principle
+			Make fine grained interfaces that are client specific.
+	--> D:	The Dependency Inversion Principle
+			Depend on abstractions, not on concretions
+100) Transactional Propagations
+	--> propagations help us to set boundaries to Bussiness Logic
+		--> Default propagation is REQUIRED
+			--> @Transactional/@Transactional(propagation = Propagation.REQUIRED)
+			--> it will check if any active transaction available if not it will create new one.
+				if exists then it will apend bussiness logic to that transaction
+		--> SUPPORTS 
+			--> @Transactional(propagation = Propagation.SUPPORTS)
+			--> if transaction exists then it will use it or else it will go as non transactionsl
+		--> MANDATORY 
+			--> if no transaction is active then it will throws Excepion
+		--> NEVER 
+			-->	ring throws an exception if there's an active transaction
+		--> NOT_SUPPORTED 
+			--> Spring at first suspends the current transaction if it exists, then the business logic is executed without a transaction.
+		--> REQUIRES_NEW 
+			--> spring suspend the current transaction and create new one
+		--> NESTED 
+			--> if active transaction then it will make save point.if any exception occures then it will rollback to that save point
+				if no transaction .its live REQUIRED
+	--> Isolation :  we need to address below side effers of concurrent access
+		Dirty read: read the uncommitted change of a concurrent transaction
+		Nonrepeatable read: get different value on re-read of a row if a concurrent transaction updates the same row and commits
+		Phantom read: get different rows after re-execution of a range query if another transaction adds or removes some rows in the range and commits
+		--> Isolation describes how changes applied by concurrent transactions are visible to each other.
+		--> Default isolation is ISOLATION_DEFAULT
+			--> what ever default isolation of DB will be taken up
+		--> READ_UNCOMMITTED
+			--> its the lowest isolation level
+			--> @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+			--> it allows all the 3 side effects of cocurrent access (Dirty read,Non-repeatable Read.Phantom Read)
+			--> it reads uncommited data
+		--> READ_COMMITTED 
+			--> second level isolation it prevents dirty reads
+			--> remaining can allow
+		--> REPEATABLE_READ 
+			--> 3rd level isolation 
+			--> it prevents dirty and non-repeatable reads
+		--> SERIALIZABLE 
+			--> highest level of isolation
+			--> it prevent all side effects
+		
+
+	

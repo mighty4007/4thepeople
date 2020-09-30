@@ -1,0 +1,20 @@
+----------------------------:Java Script: --------------------------------------------------
+Es6 Classes:
+ --> Class Dev{
+	constructor(name){
+		this.nameLocal=name // it will create  local var automatically
+	}
+	 hello(){
+	  return ' helow mr.mrs :'+nameLocal;
+	 }
+	}
+	var obj= new Dev("hero")
+	obj.hello();
+	
+ --> if you wnat declare variable inside class it should not have var or any accesss specifier
+ --> before ES6 there is no class concept in JS
+ 
+--> data types. block means between {}
+	var :  global exacess and muttable
+	let	 : block scope and muttable
+	const :  block scope and immuttable. if const is object then you can update its member

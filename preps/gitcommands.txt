@@ -1,0 +1,42 @@
+Git : is locally installed sw to make decentralize
+Git hub/Git lab : it is 3 part supported remote repository to have it in globally
+
+commands:
+	--> git init :  to initialize git. after that changes will be tracked by git.first step to do
+	--> touch <<file name>> : to create file
+	--> git status : to know the status of the files with in git
+	--> git add <<fileneme/.(all files)>>: to add files to fgit to track the changes
+	--> git config --global user.email "you@example.com" // to commit changes we have to confir email and username
+		git config --global user.name "Your Name"
+	--> git config --edit --global : to edit global config file
+		:wq --> to exit edit file
+	--> git commit -m <<message>> : to commit changes locally
+	--> to make some specific files to ignore by git
+		--> create file as .gitignore : vi .gitignore
+		--> insde file give extertion formats ".java,.exe"
+	--> git branch :  to view the available branches
+	--> git branch <branch name> : to create new branch
+	--> git checkout <branch name> : to swich to perticular branch
+	--> git merge v1 -m  <<message>> :  to merge with requred branch to present barnch
+	--> git log  :  gie the change with commit ID and discription
+	--> git rm -rf <file names> : to delete the file
+	--> git branch -d <branch name> : to delete the branch
+	--> git branch --merge :  to give the merged branches to current branch
+	--> git branch --no-merge :  to give not merged branches to current branch
+	--> git stash : to revert the all changes bebore we commit
+	--> git stash list : to view stash applid
+	--> git diff stash@{<nuber>} ^ stash@{<number>}  <fileName>: to view the differance btw stashed versions
+	--> git stash show -p stash@{<number>} : to view info about what the changes in that stach
+	--> git stash apply stash@{<number>} : to revoke the stash
+	--> git stash clear : to clear all the slash 
+	--> git reset /git reset --mixed : to reset last change
+	--> git reset --hard : to tal revert
+	--> git reset --soft : to removed header. mainly managing conflict
+	--> git revert <commit id from log> -m "msg" : to revert the perticular change
+	--> git push -u origin master
+
+
+--> modes :
+	--> colon =: ==> to write command and execute . it is an command mode
+	--> insert = i : to edit  file
+	--> esc = esc
