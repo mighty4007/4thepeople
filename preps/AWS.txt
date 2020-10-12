@@ -1,0 +1,172 @@
+--> Available few cloud providers 
+	--> Google cloud platform
+	--> AWS
+	--> IBM cloud
+	--> Ms Azure
+	--> terremark
+	--> Digital Ocean
+	
+--> AWS has hign market. it has high compute capacity
+--> Use cases
+	--> manufacturing organization --> expamd bussiness
+	--> Architecture consulting --> compute rendering for prototype
+	--> Media Company	--> Expand bussiness
+	--> Large Enterprise --> deliver training
+--> Advantages
+	--> Flexibility
+	--> Cost Effective --> pay as use
+	--> Scalability
+	--> Security -->  AWS will take care of acpects of security 
+	
+--> AWS architecture
+	--> infrasture is divided into regions and availability zones
+	--> you can acces your region at any part of the world
+--> Domains of AWS
+	--> Compute
+		--> EC2  : Amazon Elastic Computer Cloud
+		--> Elastic Beanstalk
+		--> AWS Lambda
+	--> Migration
+		--> Snowball
+	--> Security and compliance
+	--> Storage
+		--> S3 --> bucket spaces
+	--> Networking
+		--> VPC
+	--> Messaging
+	--> DataBase
+		--> Dinamo DB
+	--> Management tools
+		--> cloud watch.we can create alarms
+
+--> EC2	
+	--> instance
+		--> instance is a virtual server for running applications on Amezon EC2.it can also be understood like a tiny part
+			of large computer,a tiny part which has its own hard drive,network connection,Os rtc.but its actaually all virtual
+	--> Ec2 is webservice from Amezon that provides re-sizable compute services in cloud
+	--> its flexible,cost efficient and scalable
+	--> Types of instances
+		--> general purpuse instaces --> balance of performance and cost
+		--> Compute instaces --> tht requires a lot of processing from the CPU
+		--> Memory Instace --> apps in heavy in nature. lot of RAM
+		--> Srorahe Instances --> app that are in in huge size
+		--> GPU instaces --> graphic oriented apps
+	--> Pricing models
+		--> On-demand --> time based size
+		--> Dedicated --> confidential no to share with others
+		--> On spot  --> like bidding. deleaing with volatile data
+		--> Reserved --> subcribe for some time which may required later
+	--> Ec2 instances based on their Fuctions
+		--> Burstable  --> if its crosses defined level it will brust and expance utilization
+		--> EBS optimised
+		--> Cluster Networking
+		--> Dedicated
+	-->  Use Case
+		--> Analysis of customer data  --> bursable 
+		--> Auto response e-mail system --> EBS optimized
+		--> search engine and browsing --> cluser nw
+		--> confindential data --> dedicated
+	--> we can create any operating system instances and attach disk the security to create basic intance
+
+--> AWS Lambda
+		--> Automated version of Ec2
+		--> For executing background tasks
+		--> its a serverless compute service,meaning the developers, dont have to worry about which aws resources to launch,
+			or how will they manage them, they just put the code on lambda and its runs. lambda can only be to execute background tasks
+		--> AWS SDKs useed to integrate with Eclipse and visual studio.
+
+--> AWS Elastic Beanstalk
+	--> is an paas service used for deploying and scaling erb applications and services developed with java,php,node on familier servers such
+		as apache,nginx,tomcat and iis
+	--> easy way to deploy app
+	--> auto scalling
+	--> Components
+		--> applications
+		--> application version
+		--> Environment
+		--> Environment Tier
+			--> Web server tier --> http requests
+				--> Bean stalk environment
+				--> Elastic load balancer
+				--> auto scale group
+				--> EC2 instances
+				--> Host manager
+				--> Security Groups
+			--> Worker tier --> background process
+				--> time intensive
+				--> ex: email notifications.cleanup data..etc
+		--> Envorinment health
+			--> gray --> being update
+			--> green --> recent check done
+			--> yellow --> recent check failed
+			--> red --> tree or more times failed
+		--> comunication between environments happens via SQS queus 
+		
+--> Cloud Storage services
+	--> storage available as service connected over a network
+	--> we can store emails,media,service,backup
+	--> we can process and managing data
+	--> Myths
+		--> suitable only for large scale organization
+		--> complexity with cloud
+		--> not eco-friendly
+		--> Zero downtime
+		--> there is no need of cloud storage
+	--> benifits
+		--> Customer friendly
+		--> Secure
+		--> pocket friendly
+	--> Cloud storage Practices
+		--> crutinize SLA
+		--> Follow your Bussiness needs
+		--> Ensure Security
+		--> plan your storage future
+	--> Available Storage
+		--> S3
+			--> simple storage service
+			--> objects can be stored in buckets
+		--> EFS
+			--> elastic file storage
+		--> S3 glacier
+			--> for archival data
+		--> storage gateway
+			--> enable to migrate data
+	--> its works on objects and buckets
+		--> object represents its our data. data with key and version ID
+		--> bucket is container that holds data
+	--> Transfer acceleration
+		--> moves long distance physically btw your client and an s3 bucket
+		--> moves data in very faster mananner
+		
+--> Network services
+	--> VPC
+		--> Virtual network
+		--> in our private network
+	--> Direct Connect
+		--> insted of internet we can connect to ur resources
+	--> Route 53
+		--> domain name system
+--> AWS clould front
+	--> it set intermediate point where data cached first
+	--> it is a web service that speeds up distibution of your static and dynamic web content,such as html,css,js,images to user users
+	--> Key notations
+		--> Routing
+		--> Edge Locations
+		--> More Availability
+	--> how its deiver
+		--> request will send to edge location firsr and it will check if it chached of not it will send to original server
+--> Cloud Watch
+	--> gives insites of your application
+	--> basic monitoring
+		--> check frequency is high
+	--> Detailed monitoring
+		--> check frequency is low
+		--> costly 
+	--> Concepts
+		--> Metrices
+		--> Dimentions
+		--> statistics(combine data)
+		--> alarm 
+	--> works
+		--> collect(martics logs collection)--> Monitor(visualize metrics and logs) --> Act(Automated response)--> Analyse(real time analysis)
+		--> 
