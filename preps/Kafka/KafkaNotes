@@ -1,0 +1,295 @@
+Kafka Topics
+	--> a perticular stream of data
+	--> like table in a database(without all the constrains)
+	--> kafka cluster
+		--> logs
+		--> purchases
+		--> tweets
+		--> truck_gps ..etc
+	--> we can have as many topics as we want
+	--> topic was identified by its name
+	--> supports any kind of message format
+	--> sequence of message called as data stream in topic
+	--> we cant query the topics insted we use produces to send data and consumers to read data
+	--> topics are splits in partitions
+		--> messages with in partitions are orders(follows order)
+	 	--> each message with in partitions gets an increment id called as offset
+	 	--> offset only have meaning for a specific partitioin
+	 	--> offsets are not reused even if previous message been deleted
+	 	--> order is only guaranteed only with in a partition
+	--> topics are immutable
+	--> data kept in kafka in limited time default was 1 week can be configurable
+	--> data is assigned randomly to partition unless akey provided
+
+Producers and Message key
+	--> producers write data to toopics (which are made of partitions)
+	--> producer knows which partition to write to (and which kafka broker has it)
+	--> In case of kafka broker failure, produces will autometically recover (this load is balanced to many brokers thanks to no of partitions)
+	--> producers can choose to send a key with the message(string,number,binary ..etc) its optional
+	--> if key is null then the data is sent round robin (part 0,then 1 ,then 2 ..)
+	--> if key is not null then all messages for that key will always go to the same parttion(hashing)
+	--> A key are typically sent if you need message ordering for specific field
+	--> Kafka message created by the produce have below components
+		--> Key -binary (can be null)
+		--> Value - binary (can be null)
+		--> Compression Type (none,gzip,snappy..etc)
+		--> Headers (optional)
+			--> key-value pairs
+		--> Partition + Offset
+		--> Timestamp(system or user set)
+	--> kafka message serializer
+		--> kakfka only accepts bytes as an input from produces and sends bytes out as an output to consumers
+		--> message serialization means transforming objects/data into bytes
+		--> they are used on the value and the key
+		--> Common serializers
+			--> String (incl. JSON)
+			--> Int,Float
+			--> Avro, Protobuf ..etc
+	--> the default partitioner, the keys are hashed using the murmur2algorith
+
+Consumers and deserialization
+	--> Consumers read data from a topic(identified by name) - pull model
+	--> Consumers automatically know which broker to read from
+	--> in case of broker failures, consumers know how to recover
+	--> Data is read in order from low to high offset within each partitions
+	--> consumers will deserialize objects/data
+	--> serialization/deserialization type must not change during a topic lifecycle(create new topic insted)
+	--> Consumer groups
+		--> all the consumers in an application read data as consumer groups
+		--> each consumer within group reads from exclusive partitions
+		--> if we have more consumers than partitions then some consumers will be inactive
+		--> it is acceptable to have multiple consumer groups on the same topic (each goup may have different fuctinality like notification,location track ..etc)
+		--> to create distinct consumer groups,use the consumer property group.id
+	--> we can have multiple consumers on one topic
+	--> Consumer offsets
+		--> kafka stores the offsets at which a consumer group has been reading
+		--> the offsets committed are in kafka topic named __consumer_offsets
+		--> when a consumers in a group has processed data received from kafka,it should be periodically committing the offsets
+		(kafka broker will write to __consumer_offsets, not the group itself)
+		-->  if a consumer dies, it will be able to read back from where it left off thanks to the commited consumer offsets
+	--> delivery semantics
+		--> by default, java consumers will automatically commit offsets(atleast once)
+		--> thare are 3 delivery semantics if you choose to commit manually
+			--> atlease once(usually preferred)
+				--> offsets are commited after message processed
+				--> if processing going wrong, the message will be read again. it result in duplicate processing
+				so we should make shure that process should be idempotent(i.e., processing again should not imapact system)
+			--> At most once
+				--> offsets are commited assoon as message received
+				--> if the process gone wrong, some message can be lost
+			--> Exactly once
+				--> for kafka : kafka workflows : use the transactional API(easy with kafka streams API)
+				--> for kafka : exyernal system workflows : use an idempotent consumer
+Brokers and Topics
+	--> A kafka cluster is composed of multiple brokers(servers)
+	--> Each broker is identified with its ID (integer)
+	--> Each broker contains certain topic partitions
+	--> After connecting to any broker (called bootstrap broker), you will be connected to the entire cluster
+	(kafka clients have smart machanics for that)
+	--> A good number to get started is 3 brokers, but some big clusters have over 100 brokers
+	--> Topic partitions will spread over the kafka brokers (horizantal scaling)
+	--> every broker called as bootstrap server. we need to connect to one broker and kafka clients will know how to connected to entire cluster
+	--> each brokers knows the meta data of all broker topics and its partitions
+
+Topic Replication
+	--> topics should have replication factor > 1(usually btw 2 and 3)
+	--> if any broker down another broker serve the data
+	--> at any time only one broker can be a leader for a given partition
+	--> Producers can only send data to the broker that is leader of partition
+	--> the other brokers will replcate the data. so each partition has one leader and multiple ISR (insync replication)
+	--> by default kafka producers can only write to the broker for partition and consumer will read the data from leader
+	--> since kafka 2.4, it is possible to configure consumers to read from the closest replica. this may reduce latency and also decrease network cost if using cloud
+Producer Acknowledments(acks)
+	-->produces can chosse to receive acknowledgement of data writes
+		--> acks=o : producers wonnt wait for ack (possible of data loss)
+		--> acks=1 : will wait for leader ack (limited data loss)
+		--> acks=all : leader+ replica acks (no data loss)
+Topic Durability
+	--> For a topic replication factor of 3,topic data durability can withstand 2 brokers loss
+	--> as a rule, for replication factor of N, you can permanantly lose up to N-1 brokers still recover data
+
+Zookeeper
+	--> it manages brokers
+	--> it helps in performing leader election for partitions
+	--> sends notifications to kafka in case of changes (ex: new topic, broker dies. broker up..etc)
+	--> till 2.X kafka cant work without zookeeper
+	--> kafka 3.x can work without zookeper(KIP-500) - using kafka Raft insted
+	--> kafka 4.x will not have zookeeper
+	--> by design zookeper operates with odd number of servers (1,3,5..)
+	--> Zk has leader (writes) the rest of the servers are followers(reads)
+	--> ZK doesnot store consumers offsets with kafka >v0.10
+	--> should we use zookeper?
+		--> with kafka brokers?
+			--> yes untill kafka 4.x 
+		--> with kafka clients?
+			--> over the time , the kafka clients and CLI have been migrated to leverage the brokers as a connection endpoint insted of zK
+			--> Since kafka 0.10, consumers stores offset in kafka and ZK and must not connect to ZK as it is deprecated
+			--> Since kafka 2.2, the kafka-topics.sh CLI command referance kafka brokers and not ZK for topic managment(creation,deletion..)
+			and the ZK CLI arguments is deprecated
+			--> All the APIs and commands that were previously leveraging ZK are migrated to use kafka insted, so that when clusters are 
+			migrated to be without Zk, the change is invisible to clients
+			--> ZK is also less secure than kafka, so ZK ports should only to be opend to allow traffic from brokers and not the clients
+			--> so to be great modern-day kafka developer, never ever use ZK as a conficuration in ur kafka clientsand other programs that connect to kafka
+Kafka KRaft
+	--> in 2020, apache kafka project started to work to remove the zookeeper depeendency from it (KIP-500)
+	--> ZK shows scaling issues when kafka clusters have >100000 partitions
+	--> by removing ZK, apache kafka can
+		--> scale to millions of partitions, and become easier to maintain and setup
+		--> improve stability, makes it easier to monotor, support and administation
+		--> Single security model for the whole system
+		--> Single process to start with kafka
+		--> Faster controller shutdown and recovery time
+		--> kafka 3.x now implements the Raft protocol(KRAFT) in order to replace ZK. Not production ready
+
+Installation guide:
+--> https://www.conduktor.io/kafka/how-to-install-apache-kafka-on-mac
+
+Kafka CLI : 
+--> use --bootstrap-server option everywhere not --zookeeper 
+--> right : kafka-topics --bootstrap-server localhost:9092 
+--> Wrong : kafka-topics --zookeeper localhost:2181 
+--> kafka-topics --bootstrap-server localhost:9092 --list : list the topics 
+--> kafka-topics --bootstrap-server localhost:9092 --create --topic my_topic : creation 
+--> kafka-topics --bootstrap-server localhost:9092 --create --topic my_topic --partitions 3 --replication-factor 2 : with partition and refactor --> it will thow error if we have less brokers -->
+--> kafka-topics --bootstrap-server localhost:9092 --describe --topic my_topic  : details of topic
+--> kafka-topics --bootstrap-server localhost:9092 --delete  --topic my_topic : if winown it may crash
+--> kafka-console-producer bootstrap-server localhost:9092 --topic my_topic : to brodue
+	> entrt messages..etx
+	> ctrl+c for terminate
+--> kafka-topics --bootstrap-server localhost:9092 --delete  --topic my_topic : if winown it may crash
+--> kafka-console-producer bootstrap-server localhost:9092 --topic my_topic --producer-property acks=all : set acks
+	--> we can run same command even there is no existing topic it will create new topic for us
+--> kafka-console-producer bootstrap-server localhost:9092 --topic my_topic  --property parse.key = true 
+	--property key.separatoor=:   (for key value pair)
+	> my key : my value
+--> kafka-console-consumer --bs-srv lh:9092 --topic my_topic : empty result as the pointer willl be on last
+	--> open new console and proce mesage so we can see same message can be seen in consumer terminal
+--> kafka-console-consumer --bs-srv lh:9092 --topic my_topic --from-beginning : to read all messages
+--> kafka-console-consumer --bs-srv lh:9092 --topic my_topic --from-beginning --formatter kafka.tools.DefaultMessageFormatter
+	--property print.timestamp=true --property print.key=true --property print.value=true : to view in key-value pair
+	if no key it will be null
+--> kafka-console-consumer --bs-srv lh:9092 --topic my_topic --group my_consumer_group : to group consumers
+	--> we can run same cod in different terminal to vire message distribution
+--> kafka-consumer-group -bs-srv lh:9092 --group my_group --reset-offsets --to-erliest --topic my_topic
+	--execute : to resetting offset till the beggining
+--> kafka-consumer-group -bs-srv lh:9092 --group my_group --reset-offsets --shift-by -2 --topic my_topic
+	--execute : to resetting offset to desired shift
+
+Kafka_Java
+	--> https://www.conduktor.io/kafka/kafka-sdk-list for java sdk download
+	--> maven dependencies 
+		--> java 11
+		--> kafka-clients
+		--> slf4j api
+		--> slf4j simple better to keep both slfj same version
+	--> producer
+		--> create producer configuration
+			  	Properties props= new Properties();
+        		props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
+        		props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        		props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
+
+		--> create the producer
+			    KafkaProducer<String,String> produder = new KafkaProducer<String, String>(props);
+
+  		--> Producer Record
+        		ProducerRecord record = new ProducerRecord("demo","hi how are you");
+        --> send data (async)
+        		produder.send(record);
+        --> send data (sync
+       		 produder.flush();
+        --> closing
+        	produder.close();
+    --> Producer with call back : callback method will be called dor each succcessfull send or exception
+
+    	-->  while sending data
+    		-->   produder.send(record, new Callback() {
+            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                if(e== null)
+                    logi.info("message send sucessfully");
+                else
+                    logi.info(e.getMessage());
+
+            }
+        });
+    --> Producer with keys // partition will be preserved based key hash
+    	--> ProducerRecord record = new ProducerRecord("demo","key1",hi how are you");
+    --> Consumer
+    	--> config  
+    		Properties props= new Properties();
+        	props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
+        	props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        	props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
+        	props.setProperty(ConsumerConfig.GROUP_ID_CONFIG,"my_group_id");
+        	props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"earliest"); //"none/earliest/latest"
+        --> create consumer
+        	KafkaConsumer<String,String> consumer = new KafkaConsumer<String, String>(props);
+        --> Topic sunscription
+        	consumer.subscribe(Collections.singletonList("my_Topic")); // for single topic
+        	consumer.subscribe(Arrays.asList("my_Topic_list")); // for multiple topics
+        --> poll/read data
+
+	        --> while (true){
+	            ConsumerRecords<String,String> records = consumer.poll(Duration.ofMillis(1000));
+	            for (ConsumerRecord<String,String> record:records) {
+	                logi.info(record.key());
+	                logi.info(record.value());}}
+	    --> Gracefull shutdown
+	    	--> after consumer creation
+	    		--> get a reference to the current thread
+	    			--> // shutdown thread
+			        //get current thread
+
+			        final Thread mainThread = Thread.currentThread();
+			        //adding shutdown hook
+			        Runtime.getRuntime().addShutdownHook(new Thread() {
+			            public void run() {
+			                logi.debug("Detected a shutdown. lets by calling wakeup function");
+			                consumer.wakeup();
+			                try {
+			                    mainThread.join();
+			                } catch (InterruptedException e) {
+			                    e.printStackTrace();
+			                }
+			            }
+			        });
+
+			        try {
+
+			            //topic subscription
+
+			            consumer.subscribe(Collections.singletonList("my_Topic")); // for single topic
+			            consumer.subscribe(Arrays.asList("my_Topic_list")); // for multiple topics
+
+			            //poll/read data
+
+			            while (true) {
+			                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+			                for (ConsumerRecord<String, String> record : records) {
+			                    logi.info(record.key());
+			                    logi.info(record.value());
+			                }
+
+			            }
+			        } catch (WakeupException we) {
+			            we.getMessage()
+			        } catch (Exception e) {
+			            logi.error(e.getMessage());
+			        } finally {
+			            consumer.close(); // this will also do auto commit offset
+			        }
+		--> Consumer Groups
+			--> groups will be relananceing on partitions on below statergies
+				--> Eagar Rebalance (default)
+					--> once new consumer adds. it will cancell existing membership and reasigning
+					--> during short period of time, the entaire consumer group stop processing
+					--> consumers dont necessarly get back the same partition previously assigned
+				--> Cooerative rebalancing(incremental rebalance)
+					--> reassignng a small subset of partions from one consumer to nother
+					--> can go through several iterations
+					--> Avoids "stop-the-world" events where all consumers stop processing
+
+        
+
+
+

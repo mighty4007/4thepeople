@@ -1,6 +1,7 @@
 1. what is default keyword in class
 2. difference between abstract and interface
 3. can abstract have constructor
+	--> Yes it can have a constructor and it is defined and behaves just like any other class's constructor. Except that abstract classes can't be directly instantiated, only extended, so the use is therefore always from a subclass's constructor.	
 4. what is difference between array list and linked list
 5. how hash map works internally
 6. what is multithreading
@@ -10,16 +11,20 @@
 10.what is dependency injection
 11. what is design pattern used in your project
 12. what is ORM and importance
+	--> Object-Relational Mapping (ORM) is a technique that lets you query and manipulate data from a database using an object-oriented paradigm
 13. explain JPA
+	--> The Java Persistence API (JPA) is a Java specification for accessing, persisting, and managing data between Java objects / classes and a relational database.
 14. what is throws keyword 
 15. what is wrapper class
 16. how dependency injection arrived (configuration )
 17. what is restful webservices
 18. what is difference between controller and rest controller
+	--> The @Controller is a annotation to mark class as Controller Class in Spring While @RestController is used in REST Web services and similar to @Controller and @ResponseBody.
 19. what is spring mvc architecture , explain
 20. what is @qualifier keyword
 21. difference between treeset and hash set
 22. what is scope of spring bean annotation
+	--> singleton
 23. what is comparable and comprator functionalities
 24. how to sort an employee with age, sal using comparator
 25. in howmany ways string object can instantiate.
@@ -32,8 +37,11 @@
 27. queryparameter and path parameter difference
 28. Put and Post, Get difference in restful
 29. difference between post and patch
+	--> POST is always for creating a resource ( does not matter if it was duplicated )
+	--> PUT is for checking if resource exists then update, else create new resource
+	--> PATCH is always for updating a resource
 30. what is the flow control when we hit a web url from browser
-31. can instantiate abstract class
+31. can instantiate abstract class --> no
 
 32) is static method can be overridden?
 	--> no not possible as a static mentho is not associated with any instance of the class
@@ -70,11 +78,17 @@
 		but it has high latency as data need to be updated while querying
 		
 37) what is CAP therom
+	--> consistency
+	--> availability
+	--> partition- tolerance
 38) which senario hibernate throw lazyinitialization error
 39) how to resolve issue of convering monolic to microservices with proxy 
 40) is their any way to know the performance of the method (i.e., execution time) in spring
+	--> @TrackExecutionTime annotation can help us
 41) how can you safe guard the card details in request
 42) clusterd vs non clustrud index
+	--> A Clustered index is a type of index in which table records are physically reordered to match the index.
+	--> A Non-Clustered index is a special type of index in which logical order of index does not match physical stored order of the rows on disk
 43) is streams have better performance?
 44) virtual machine vs container and what do you mean by image
 	VM :
@@ -287,6 +301,10 @@ we have to configure entitymanager and trasaction manager aswell
 												.block(); // to  make it sync call
 	--> fign client
 		--> its like stub creation.we can use that directly
+	--> One of the main differences is RestTemplate is synchronous and blocking i.e. when you do a rest call you need to wait till the response comes back to proceed further.
+	--> But WebClient is complete opposite of this. The caller need not wait till response comes back. Instead he will be notified when there is a response.
+	--> If you need such a functionality, then yes you need to replace your Resttemplate with WebClient.
+	--> You can in fact achieve Rest template like synchronous processing in webclient using .block(). But the other way is not possible
 78) Exception hadling in boot
 	--> using @ControllAdvice and @ExceptionHandlier("ex handler")
 	

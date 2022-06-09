@@ -74,7 +74,7 @@ Key concepts of 1.8
 		--> functional interface can he inherited if child dont have abstract method.its valid if the same method is overrided
 			Example:
 			
-			valid:											invalid:
+			valid:											invalid: as it will have 2 methods now
 		
 		1)	@FunctionalInterface						@FunctionalInterface						
 			interface A{								interface A{

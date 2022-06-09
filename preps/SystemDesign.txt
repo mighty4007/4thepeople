@@ -1,0 +1,33 @@
+1)Scalling:
+
+	vertical : insted of more morvers we will have one big servier which can hold multile services like (which can controll DB,web..etc)
+		con: limited when its getting bigger, single point of failure
+		pro : less maintanance
+
+	Horizantal: multiple servers with load balancing
+		con : high maintanance, will workout with stateless
+		pro : SOF can be addresed,can be scale infinatly
+
+which one to go : chosse the simplest architecture that meets your project traffic requirements but no simpler
+
+2) Failover stratergies:
+
+	what kind of serviers are their
+		on premize (company owned)
+		cloud services(amezon ec2, google compute engine, azure VMs)
+		Fully managed "serverless" services (i.e., amezon lambda,kinesis,athena)
+
+	Failover servers
+		Cold Standby : keeping the backup in tapes/dsks/..etc (periodic) . if DB crashers backup will be restored to anpther server and traffic pointer to new
+			con : downtime till new server ready, back up may fail, data loss during fail
+
+		Warm sandby : replication service whic can be replicated in real time
+			con : tiny window of data loss
+
+		Hot standby : insted of replication webserver will wire data in multiple dbs simultaneosly. fit in horizontal scale
+			con : more resource utilization
+
+3) scaling databases
+	Horizontal scale: Sharding
+     	web poining to multiple shard dbs with their backups
+
