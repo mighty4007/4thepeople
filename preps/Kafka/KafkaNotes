@@ -102,8 +102,11 @@ Topic Replication
 Producer Acknowledments(acks)
 	-->produces can chosse to receive acknowledgement of data writes
 		--> acks=o : producers wonnt wait for ack (possible of data loss)
-		--> acks=1 : will wait for leader ack (limited data loss)
-		--> acks=all : leader+ replica acks (no data loss)
+		--> acks=1 : will wait for leader ack (limited data loss) default from 1.0 to 2.8
+		--> acks=all : leader+ replica acks (no data loss) default for 3.0+
+			--> we can set howmany replica acks needed for us to ack back using prop min.insync.replicas
+				--> if min.insync.replicas =1 ; only broker leader needs to success ack
+				--> if 2 atleasr the broker leader and one replica need to ack
 Topic Durability
 	--> For a topic replication factor of 3,topic data durability can withstand 2 brokers loss
 	--> as a rule, for replication factor of N, you can permanantly lose up to N-1 brokers still recover data
@@ -276,6 +279,7 @@ Kafka_Java
 			        } catch (Exception e) {
 			            logi.error(e.getMessage());
 			        } finally {
+
 			            consumer.close(); // this will also do auto commit offset
 			        }
 		--> Consumer Groups
@@ -288,6 +292,136 @@ Kafka_Java
 					--> reassignng a small subset of partions from one consumer to nother
 					--> can go through several iterations
 					--> Avoids "stop-the-world" events where all consumers stop processing
+					--> property partition.assignment.strategy
+						--> rangeAssignor : assign partitions on per-topic basis(can cause imbalance)
+						--> RoundRobin
+						--> StickyAssignor : balanced like RR and then minimises partition movements when consumer join/leave the group
+						--> CooperativeStickyAssignor : rebalance strategy is identical to sticky assignor but suppors cooerative balance
+						and therefore consumer can keep on consuming topic 
+						--> RA and CSA are default
+			--> if consumer leaves group and join back it will have new member ID. if we specify froup.instance.id makes consumer static member
+				if its in session.timeout.ms
+	--> Producer Retries
+		--> in case of transient failures,developers are expected to handle exceptions,otherwise the data will be lost.
+		--> Examples of failures
+			--> NOT_ENOUGH_REPLICAS (due to min.insync.replicas settings)
+		--> there is a retries settings
+			--> default to 0 for kafka <=2.0
+			--> defaults to 2147483647 for kafka >=2.1
+			--> the retry.backoff.ms setting by default 100ms
+		--> Timeouts
+			--> if retries>0, for ex. its tries all retries then its bound to time out
+			--> since 2.1 you can set delivery.timeout.ms=1200000==2 min 
+	--> Idempotent Producer
+		--> in kafka >=0.11 you can define a idempotent producer which wont introduce duplicates on network error
+		--> it is greate to guarantee a stable and safe pipeline
+		--> they are default since kafka 3.0 recommended to use them
+		--> they comeup with 
+			--> retries=Integer.MAX_VALUE
+			--> max.in.flight.requests=1(kafka=0.11) where as 5 for >=1.0 for high performance
+			--> acks= all
+		--> we need to ser producerProps.put(enable.idempotence",true)
+	--> Safe Producer
+		--> since 3.0 the producer is safe by default
+			--> acks = all (-1)
+			--> enable.idempotence = true
+		--> with >=2.8 default as 1 and false
+		--> key props to make produce safe
+			--> acks=all
+			--> min.insync.replicas = 2(broker/topic level)
+			--> enable.idempotent=true (duplicates are not introduced due to n/w retries)
+			--> delivery.timeout.ms=120000
+			--> max.in.flight.requests.per.connection=5
+				--> ensure max performace while keeping message ordering
+	--> Message copression at producer level
+		--> produces usually send data that text-based, ex json
+		--> in this case,it is to importance to compress to improve performance
+		--> compression can be enabled at producer level doesnt require any config change in brokers or consumers
+		--> compression.type can de none(default).gzip,lz2,snappy,zstd(kafka 2.1)
+		--> we can set at broker level(all topics) or topic-level
+		--> compression.type=prodcer(default),the broker takes compressed batch from procuder client 
+		and write directly to topic log file withour recompressing the data. it was recommanded
+		--> compression.type=none all batches decompressed by the broker
+		--> compression.type= lz4(for ex)
+			--> if its matching produer setting,data is stored on disk as is
+			--> if not batches are decompressed by broker and then recompress ussing compression algoritm specified
+	--> linger.ms and batch.size
+		--> by default, producers try to send records asap
+			--> it will have upto max.in.flight.... =5, meaning up to 5 message batches being in flight
+			--> after this, if more msgs must be sent while others are in flight,kafka is smart and will start batching them before the next batch send
+		--> above two settings to influence the batching machanism
+		--> linger.ms:default 0 how long to wait untill we send a batch. adding small number ex 5 helps add more msgs in that atch at expence of latency
+		--> batch-size: default 16KB if batch is filled before linger.ms increase batch size
+		       	props.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG,"snappy");
+        		props.setProperty(ProducerConfig.LINGER_MS_CONFIG,"20");
+        		props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,Integer.toString(32*1024));
+    --> if the producer produces faster than the broker , the records will be buffered in memory. below are helpfull
+    	--> max.block.ms = 60000
+    	--> bugger.memory = 33554432(32 MB) the size of send buffer
+
+    --> Consumers (read data from topic send it to opensearch)
+    	--> Delivery Semantics
+    		--> Atmost once : offsets are committed as soon as the message batch received.if process gone wrong it wont read again
+    		--> At least Once(preffered) : offsets are commited after msg processed. if process gone wrong it will read again. can be duplicate processing
+    			so we need to make sure process in idempotent
+    		--> Exactly once : can be acieved for kafka => kafka workflows using transactional API
+    			(easy with kafka Streams API). for kafka => sink workflows,use an idempotent consumer
+    		-->  we can make comsumer process to make idempotent ase on the ID
+    	--> Offset Commit strategies
+    		--> (easy) enable.auto.commit = true & synchroneous processing of batches
+    			--> in the java consumer API, offsets are regularly commites
+    			--> enable at-least once reading senario by default
+    			--> offsets are commited when you call .poll() and auto.commit.interval.ms has elapsed
+    			--> make sure msgs are all successfully processed before you call .poll() again
+    				if we dont,you will not be in at-lease-once reading scenario
+    			--> in that(rare) case, you must diable auto commit, and most likely most processing to a separate thread and then from time-to-time call
+    				.commitSync() or .commitAsync() with correct offsets manually(advanced)
+    			--> default intervel 5000
+    		--> (medium) enable.auto.commit = false and manual commit of offset
+    		--> Offset reset behaviour
+    			--> A consumer expected to read from log continuosly
+    			--> but if your application has bug, consumer will go down
+    			--> if kafka has retention of 7 days, your consumer is down for more than 7 offsets are invalid
+    			--> auto.offset.reset 
+    				--> latest : will read from end of log
+    				--> earlier : from start
+    				--> none : throw exception if no offset found
+    			--> offsets can be lost if 
+    				--> consumer hasnt read data in 1 day (kafka < 2.0) where as 7 days for >=2.0
+    			--> can be controlled by broker settings offset.retention.minutes
+    	--> Controlling Consumer liveliness
+    		--> Consumers in a group talk to a consumer groups coordinator
+    		--> to detect consumers that are down there is a heartbeat mechanism and a poll machanism
+    		--> to avoid issues,consumers are encouraged to process data fast and poll ofen
+    		--> heartbeat.interval.ms (default 3 sec) usually set to 1/3rd of session.time.out.ms
+    		--> session.timeout.ms (default 45 sec kafka 3.0+ before 10 sec)
+    		--> heartbeats are sent periodically to the broker
+    		--> if no heartbeat is sent during that period, the consumer is considered 
+    		--> set even lower to faster consumer rebalanes
+    		--> max.poll.interval.ms(default 5 mins)
+    			--> max amount of time btw two .poll() calls before declaring the consumer dead
+    			--> this machanism is used to detect a data processiing issue with the consumer(consumer is stuck)
+    			--> max.poll.records(default 500)
+    				--> controls how many records to receive per poll request
+    				--> increase if msg are very small and have a lot of available RAM
+    			--> fetch.min.bytes (default 1)
+    				--> controls how much data we want to pull at least on each request
+    			--> fetch.max.wait.ms(default 500)
+    				--> the max amount of time the broker will block before answering
+    					the fetch request if there isnt sufficient data to immediately satisfy the requirement given by fetch.min.bytes
+    	--> default consumer behaviour with partition leaders
+    		--> by default will read from the leader broker for a partition
+    		--> possibly higher latency (multiple data centre)+ high network chargers 
+    		--> ex: Datacentre == Availability Zone(AZ) in AWS 
+    		--> since 2.4 it is possible to configure consumers to read from the closest replica
+    		--> broker settings(must ve 2.4+)
+    			--> rack.id  config must be set to data centreID(ex AZ ID in AWS) : rack.id=usw2-az1
+    			--> replica.selector.class must be set to org.apache.kafka.common.replica.RackAwareReplicaSelector
+    		--> Consmer settings
+    			--> client.rack to the data centre ID the consumer is launched on
+    			 
+
+
 
         
 

@@ -1,0 +1,85 @@
+Docker
+	--> Docker is container technology. a tool to crating and managing containers
+	--> Support for containers is biuld into modern OS
+	--> Docker sinplifies the creation and management of such containers
+	--> https://docs.docker.com/engine/install/ : docker setup
+	--> if ur system not supporting docker we can have web version https://labs.play-with-docker.com/ß
+
+Container
+	--> A standardized unit of sw. a pkg of code and its dependencies to run that code(ex: nodejs code+ nodejs runtime)
+	--> the same container always yields the exact same application and execution behaviout no matter where or by whome it might get executed
+	--> it will solve the environmental issues and clashing tools/version btw different projects
+
+VM vs Containers
+	--> we intsall VM on top of host OS. it can pack app+dependency tools+ virtual OS
+	--> every VM have virtual OS due to this lot of space and hardware utilization
+	--> VM Pros
+		--> separated env
+		--> Environment-specific configurations are possible
+		--> env. config can be shared and re produced reliably
+	--> Vm Cons
+		--> Redundant duplication,waste of space
+		--> slow performance boot time high
+		--> reproducing on other compuer/server is possible but may still be tricky
+	--> Container Uses OS Built-in/Emulated Container Support in host OS which can eleminate the vittual OS packing 
+	--> Docker engine will be on top of OS which can utilise container support from host OS
+	--> only APP and dependecies can be paked to container
+	--> container pros
+		--> low impact on OS very fast minimal disk utilization
+		--> sharing re-building easy
+		--> encapsulate apps/env insted of whole machine
+
+DockerTools
+	--> Docker Engine : its require to run docker
+	--> Docker Desktop(incl. Daemon & CLI): creation 
+	--> Docker Hub : its service that can help host containers in clusters,DC and AZs
+	--> Docer Compose : managing complex multi container projects easily
+	--> Kubernetes : managing containers
+
+Sample Docker file commands
+	--> FROM NODE:14 --> Create nodejs image
+	--> RUN npm install
+	--> CMD [ "node", "app.mjs" ] to run application
+	--> docker build . : to build docker image from current directory
+	--> docker run -p 3000:3000 <docker image ID> : after buld docker image to run that we can use this command 
+	--> Docker ps : to list out the services running
+	--> Docker stop <service name> : to shutdown service
+	--> npm config set strict-ssl false : if we are encountering certificate issue
+
+Images vs Containers
+	--> images will be template/blue print for the containers. containes code +required tools/run times
+	--> we can create multiple cotainer based on the image
+	--> so container will be concrete instance of such an image
+
+pre-build images
+	-> pre-build images help us to create containers to run our appications
+		--> Ex : Docker run node : it will provide node container by downloading from docker hub
+		--> docker ps -a will show the container which is areated above
+			--> -a : all the containers created by docker
+		--> docker run -it node : this command used to interact with node means we can run node commands here
+
+Own Build Images
+	--> COPY . . first dot represent the current directory of docker file second is destination container its like images/container file system 
+	--> COPY . /myapp : it will create myapp folder with in image 
+	--> WORKDIR /myapp : if mention this COPY . ./ will copy to myapp directory
+	--> the differance between RUN and CMD is run to be used while building imacge it self it can run where as CMD can be executed while container starts
+		since doctfile having image info its good to us CMD for running server for dependencies we can use RUN
+		-->  we can pass cmd as arry CMD node server.js can be written as CMD ["node","server.js"]. usually CMD will be last statement
+		--> before that we need to expose port of service in docker file using EXPOSE <port> command
+	--> docker run -p 3000:80 7eb4de93187e 3000 is for to container port where as 80 is docker exposed port
+
+Images
+	--> images are immutable
+	--> usually we need to rebuilt image if any change in code . as source will be copied to Docker file system which is isolated from our source code
+	--> to compensate those rebuild. docker will only update the changed data rather than do everthing while rebuiding image
+	--> Every instruction in Docker file represents layer. its called layer architecture.docker maitains cache for each layer
+	--> container will create layer on top of the image layer which is read and write
+	--> when we rebuild image it will use cache if no change source code. if we have any change only that instruction layer invoke others use cache
+	--> if change detected in one layer next layers onwards it will reexecuted even no change in that layer
+	--> so its always good practice to give optimized ordered instuctions in docker file to minimize the reexecution
+
+Imp commands
+	--> docker start <name/imageid> will bring container up
+	--> 
+
+

@@ -679,6 +679,7 @@ we have to configure entitymanager and trasaction manager aswell
 		--> SERIALIZABLE 
 			--> highest level of isolation
 			--> it prevent all side effects
-		
+101) how can we define base url for all controllers
+	--> by using property in application.properties spring.data.rest.basePath=/api
 
 	
