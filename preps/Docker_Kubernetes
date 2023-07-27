@@ -21,7 +21,7 @@ VM vs Containers
 		--> Redundant duplication,waste of space
 		--> slow performance boot time high
 		--> reproducing on other compuer/server is possible but may still be tricky
-	--> Container Uses OS Built-in/Emulated Container Support in host OS which can eleminate the vittual OS packing 
+	--> Container Uses OS Built-in/Emulated Container Support in host OS which can eleminate the virtual OS packing 
 	--> Docker engine will be on top of OS which can utilise container support from host OS
 	--> only APP and dependecies can be paked to container
 	--> container pros
@@ -62,7 +62,7 @@ Own Build Images
 	--> COPY . . first dot represent the current directory of docker file second is destination container its like images/container file system 
 	--> COPY . /myapp : it will create myapp folder with in image 
 	--> WORKDIR /myapp : if mention this COPY . ./ will copy to myapp directory
-	--> the differance between RUN and CMD is run to be used while building imacge it self it can run where as CMD can be executed while container starts
+	--> the differance between RUN and CMD is run to be used while building image it self it can run where as CMD can be executed while container starts
 		since doctfile having image info its good to us CMD for running server for dependencies we can use RUN
 		-->  we can pass cmd as arry CMD node server.js can be written as CMD ["node","server.js"]. usually CMD will be last statement
 		--> before that we need to expose port of service in docker file using EXPOSE <port> command
@@ -77,9 +77,35 @@ Images
 	--> when we rebuild image it will use cache if no change source code. if we have any change only that instruction layer invoke others use cache
 	--> if change detected in one layer next layers onwards it will reexecuted even no change in that layer
 	--> so its always good practice to give optimized ordered instuctions in docker file to minimize the reexecution
+	--> images can be shared by pushing to dockerhub or private registry. below are the steps for sharing
+		--> we need to signup for dockerhub/private regestry
+		--> it can be private public and official images
+		--> create repository in dockerhub 
+		--> docker build -t acamind/node-hello-world / docker tag existingname:existingtag academind/node-hello-world
+		--> docker login : give username and password to login
+		--> docker push acamind/node-hello-world
+		--> docker pull acamind/node-hello-world
 
 Imp commands
 	--> docker start <name/imageid> will bring container up
-	--> 
+	--> run vs start
+		--> run willnot allow to enter further commands where as start will not block terminal
+		its due to run will run in detached mode by default . we can run the run in detached mode
+		--> run in detacched mode docker run -p 8000:80 -d <imageID>
+		--> we can use docker log -f "containername" to attach again
+		--> we can make start as attached by adding -a
+		--> docker run -i -t <image> will run in interactive mode i: interactive means we can supply input params. t : allocate tty
+			--> we can combine i and t as -it
+		--> docker rm <container1> <con2> : to remove containers
+		--> docker rmi <image1> <img2> : to remove images (in order to remove image first we need to remove its containers irrespective of its run status)
+		--> docker image prune  : to remove all the unused images
+		--> docker run --rm -d -p 3000:80 <imageID> : as we used --rm it will remove container as soon as container stop
+		--> docker image inspect b1c0c5c84200 : gives details of that image
+		--> docker cp <path/filename/.> <containerid>/mypathfolder : to copy files from local to container .if no folder exist in container it will create one
+		--> docker cp  <containerid>/mypathfolder <path/filename/.> : copy from container to local
+		--> docker run --name myname <Image> : to run container with our name 
+		--> name:tag  : usually tag we use for version
+		--> build image with our own name and tag
+			--> docker build -t myapp:version1 .
 
 
