@@ -42,14 +42,14 @@
 --> EC2	
 	--> instance
 		--> instance is a virtual server for running applications on Amezon EC2.it can also be understood like a tiny part
-			of large computer,a tiny part which has its own hard drive,network connection,Os rtc.but its actaually all virtual
+			of large computer,a tiny part which has its own hard drive,network connection,Os etc.but its actaually all virtual
 	--> Ec2 is webservice from Amezon that provides re-sizable compute services in cloud
 	--> its flexible,cost efficient and scalable
 	--> Types of instances
 		--> general purpuse instaces --> balance of performance and cost
 		--> Compute instaces --> tht requires a lot of processing from the CPU
 		--> Memory Instace --> apps in heavy in nature. lot of RAM
-		--> Srorahe Instances --> app that are in in huge size
+		--> Srorage Instances --> app that are in in huge size
 		--> GPU instaces --> graphic oriented apps
 	--> Pricing models
 		--> On-demand --> time based size
@@ -76,7 +76,7 @@
 		--> AWS SDKs useed to integrate with Eclipse and visual studio.
 
 --> AWS Elastic Beanstalk
-	--> is an paas service used for deploying and scaling erb applications and services developed with java,php,node on familier servers such
+	--> is an paas service used for deploying and scaling erp applications and services developed with java,php,node on familier servers such
 		as apache,nginx,tomcat and iis
 	--> easy way to deploy app
 	--> auto scalling
@@ -154,7 +154,7 @@
 		--> Edge Locations
 		--> More Availability
 	--> how its deiver
-		--> request will send to edge location firsr and it will check if it chached of not it will send to original server
+		--> request will send to edge location first and it will check if it chached of not it will send to original server
 --> Cloud Watch
 	--> gives insites of your application
 	--> basic monitoring

@@ -1,40 +1,241 @@
 1. what is default keyword in class
+	--> With the introduction of the default keyword in Java 8, interfaces can now also contain default methods. 
+		These methods have a default implementation provided by the interface itself. 
+		If a class that implements the interface doesn't provide its own implementation for a default method, 
+		the default implementation from the interface will be used.
 2. difference between abstract and interface
 3. can abstract have constructor
-	--> Yes it can have a constructor and it is defined and behaves just like any other class's constructor. Except that abstract classes can't be directly instantiated, only extended, so the use is therefore always from a subclass's constructor.	
+	--> Yes it can have a constructor and it is defined and behaves just like any other class's constructor. 
+	Except that abstract classes can't be directly instantiated, only extended, so the use is therefore always from a subclass's constructor.	
 4. what is difference between array list and linked list
+	--> ArrayList:
+	Underlying data structure: Array
+	Access time: Constant time (O(1)) for random access (getting or setting an element by index).
+	Insertion/deletion time: Linear time (O(n)) for operations involving elements in the middle of the list.
+	Best suited for: Frequent random access operations, such as searching for an element by index.
+	
+	LinkedList:
+	Underlying data structure: Doubly linked list
+	Access time: Linear time (O(n)) for random access.
+	Insertion/deletion time: Constant time (O(1)) for operations involving elements at the beginning or end of the list.
+	Best suited for: Frequent insertion or deletion operations, especially at the beginning or end of the list.
+	
 5. how hash map works internally
 6. what is multithreading
 7. explain spring MVC flow
+	1. Model: Represents the data that the application will be working with. This includes Java objects that encapsulate the application's state.
+	2. View: Responsible for rendering the user interface. It displays the data from the model in a format that the user can understand.
+	3. Controller: Acts as the intermediary between the model and the view. 
+	   It handles incoming requests from the client, processes the request data, 
+	   interacts with the model, and selects the appropriate view to render.
+	Here's a breakdown of the typical flow of a Spring MVC application:
+	Client Request: A user sends a request to the application, such as a GET or POST request to a specific URL.
+	Dispatcher Servlet: The Spring MVC DispatcherServlet intercepts the request and determines which controller should handle it based on the URL pattern.
+	Controller: The controller is responsible for processing the request. It may perform tasks like validating input, fetching data from the model, and preparing data for the view.
+	Model: The controller interacts with the model to retrieve or update data as needed.
+	View: The controller selects the appropriate view to render the response. The view uses the data from the model to generate the HTML or other content that will be sent to the client.
+	Model-View-Controller (MVC) Pattern: Spring MVC follows the Model-View-Controller (MVC) design pattern, which promotes separation of concerns and makes the application easier to maintain and test.
+	Response: The view's output is returned to the DispatcherServlet, which sends it back to the client as a response.
+	
 8. difference between error and exception
+	Error : not recoverable and uncecked,system failures and program mistakes
+	Excepion : Recoverable can be checked and unchecked input and network issues
 9. what is Bean
+	In the context of Spring Framework, a bean is a simple Java object that is managed by the Spring IoC container. 
+	The Spring IoC container is responsible for instantiating, configuring, and assembling these beans.
+	
+	Key characteristics of Spring beans:
+	Managed by the container: The container is responsible for creating and managing the lifecycle of beans.
+	Configurable: Beans can be configured with properties, dependencies, and other attributes using XML configuration, annotation-based configuration, or Java configuration.
+	Singleton or prototype scope: Beans can have different scopes, such as singleton (one instance per application context) or prototype (a new instance for each request).
+	Dependency injection: Beans can be injected with dependencies (other beans) using dependency injection techniques.
+	
+	Bean Scopes:
+	singleton : one instance per application context
+	prototype : a new instance for each request 
+	request : one instance per HTTP request 
+	session : one instance per HTTP session 
+	application : one instance per web application
+	
 10.what is dependency injection
+	Dependency Injection (DI) is a design pattern used in Object-Oriented Programming (OOP) where an object’s dependencies 
+	(e.g., other objects or services that it needs to function) are injected by an external entity rather than the object itself creating them.
+	In simpler terms, Dependency Injection allows a class to be loosely coupled with its dependencies by receiving them from an external source 
+	(usually via constructors, setters, or method arguments) rather than hardcoding the dependencies within the class. 
+	This makes code more modular, easier to test, and more maintainable
+	
 11. what is design pattern used in your project
+	Singleton Pattern: For managing global configurations and shared resources like database connections.
+	Factory Pattern: To decouple object creation from the main logic, particularly for handling different types of objects in a flexible way.
+	Observer Pattern: To implement event-driven systems like notifications.
+	Strategy Pattern: For designing a flexible pricing engine where different discount strategies could be applied dynamically.
+	
+	Singleton Pattern
+	Problem: We needed to manage a database connection pool where only one instance of the connection pool should exist to 
+	handle multiple database transactions efficiently without creating new connections every time.
+	Solution: We used the Singleton Pattern to ensure that the connection pool was instantiated only once, 
+	and every class requiring a database connection used this instance.
+	
+	Factory Pattern
+	Problem: In one of my e-commerce projects, we had different payment gateways (Credit Card, PayPal, and Bank Transfer), 
+	and the application needed to create payment processors dynamically based on the user’s choice.
+	Solution: We used the Factory Pattern to create the appropriate payment processor object without changing the client code.
+	The Factory encapsulated the object creation logic, making it easier to introduce new payment gateways in the future
+	
+	Observer Pattern
+	Problem: In a stock trading application, we needed to notify multiple services (e.g., notification service, analytics service)
+	whenever a stock price was updated in real-time.
+	Solution: We implemented the Observer Pattern to allow multiple services to register as observers of stock price updates. 
+	When the price changed, all the registered observers were automatically notified.
+	
+	Strategy Pattern:
+	Problem: We had an order processing system that needed to apply different discount strategies based on the user type 
+	(e.g., regular customers, premium members, seasonal promotions).
+	These strategies needed to be applied dynamically at runtime.
+	Solution: We used the Strategy Pattern to encapsulate the discount algorithms. 
+	The main order processing logic remained the same, but we could switch between discount strategies dynamically based on the context.
+	
 12. what is ORM and importance
 	--> Object-Relational Mapping (ORM) is a technique that lets you query and manipulate data from a database using an object-oriented paradigm
 13. explain JPA
-	--> The Java Persistence API (JPA) is a Java specification for accessing, persisting, and managing data between Java objects / classes and a relational database.
+	--> The Java Persistence API (JPA) is a Java specification for accessing, persisting, 
+		and managing data between Java objects / classes and a relational database.
 14. what is throws keyword 
 15. what is wrapper class
+	A Wrapper Class in Java is an object representation of a primitive data type. 
+	Java provides a set of classes, called wrapper classes, 
+	that allow you to treat primitive data types (like int, char, boolean, etc.) as objects. 
+	Each primitive type has a corresponding wrapper class.
+	
+	Purpose of Wrapper Classes:
+	Object Representation: Wrapper classes allow primitive types to be represented as objects. 
+	This is useful because certain Java features, like collections (ArrayList, HashMap, etc.), 
+	require objects rather than primitive types.
+	Utility Methods: Wrapper classes provide methods for converting between different data types, 
+	parsing strings into numbers, and performing operations like comparing values.
+	AutoBoxing and UnBoxing: Since Java 5, the conversion between primitive types and wrapper objects (and vice versa)
+	happens automatically using autoboxing and unboxing.
+
 16. how dependency injection arrived (configuration )
+	via Xml
+	<beans>
+    <bean id="engine" class="com.example.Engine"/>
+    
+    <bean id="car" class="com.example.Car">
+        <constructor-arg ref="engine"/>  <!-- Inject Engine dependency -->
+    </bean>
+	</beans>
+	
+	As Java evolved and Spring matured, Java-based configuration and annotations were introduced to simplify DI. 
+	This approach is more concise and doesn’t rely on external XML files.
+	
 17. what is restful webservices
+	RESTful Web Services are web services built using the REST (Representational State Transfer) architectural style, 
+	which allows interaction with web resources using standard HTTP methods. 
+	RESTful web services are stateless, lightweight, scalable, and commonly used to build APIs for web applications.
+	They expose resources (data and services) through URIs (Uniform Resource Identifiers) and allow clients to interact with these resources u
+	sing a defined set of standard operations.
+	
+	REST vs. SOAP Web Services:
+	Feature							REST											SOAP
+	Architecture					Stateless, client-server						Protocol-based, often with complex message structures
+	Communication Protocol			HTTP (primarily)								HTTP, SMTP, TCP, etc.
+	Data Format						JSON, XML, YAML, etc.							XML only
+	Ease of Use						Simple and lightweight							More complex, requires extensive setup
+	Caching							Supports caching via HTTP caching mechanisms	Caching is not supported out of the box
+	Performance						Typically faster due to lightweight nature	    Typically slower due to additional overhead (SOAP headers)
+	Error Handling					HTTP status codes (e.g., 200, 404, 500)			Uses SOAPFault element for error handling
+
 18. what is difference between controller and rest controller
 	--> The @Controller is a annotation to mark class as Controller Class in Spring While @RestController is used in REST Web services and similar to @Controller and @ResponseBody.
 19. what is spring mvc architecture , explain
+	Spring MVC architecture consists of several key components that handle requests and responses in a web application. 
+	Here's an overview of how the architecture works:
+	
+	DispatcherServlet (Front Controller)
+	Handler Mapping
+	Controller
+	Model
+	View Resolver
+	View
+	
+	Flow of Spring MVC Request:
+	When a client (browser) makes a request to a Spring MVC application, the request follows these steps:
+
+	Client Request: The client (browser) sends an HTTP request to the server.
+	DispatcherServlet: The request is first received by the DispatcherServlet, which is the front controller in Spring MVC. 
+					   The DispatcherServlet is the central piece of Spring MVC that directs the flow of the request to other components in the architecture.
+	Handler Mapping: The DispatcherServlet consults a Handler Mapping to determine which controller will handle the request. 
+					 Handler Mapping looks for a mapping between the request URL and the appropriate controller.
+	Controller: The Controller is responsible for handling the business logic and processing the request. 
+				The controller interacts with the Model to fetch or update data.
+	Model: The Model represents the data (objects) that will be passed to the view for rendering. 
+			The model can be populated by the controller, often by interacting with a service or database.
+	View Resolver: After the controller processes the request, the DispatcherServlet consults the View Resolver 
+					to find the correct View (JSP, Thymeleaf, or other view templates) to render the output.
+	View: The View renders the model data into the appropriate format (usually HTML) and returns it as the HTTP response to the client.
+	Client Response: The client (browser) receives the rendered view as an HTTP response.
+	
+	Key Annotations in Spring MVC:
+	@Controller: Marks a class as a Spring MVC controller.
+	@RequestMapping: Maps HTTP requests to specific handler methods in the controller.
+	@GetMapping, @PostMapping: Specializations of @RequestMapping for handling GET and POST requests.
+	@ModelAttribute: Binds a method parameter or return value to the model, making it accessible to the view.
+	@RequestParam: Binds a query parameter to a method argument.
+	@PathVariable: Binds a path variable from the URI to a method argument.
+
 20. what is @qualifier keyword
+	--> to overcome conflick if many implementations for same type
 21. difference between treeset and hash set
+	--> Elements in a TreeSet are sorted in natural order (ascending) or according to a custom comparator (if provided)
+		HashSet does not guarantee any ordering of the elements. It is unordered, meaning that the elements are not stored in any specific order.
 22. what is scope of spring bean annotation
 	--> singleton
 23. what is comparable and comprator functionalities
 24. how to sort an employee with age, sal using comparator
+	import java.util.*;
+	import java.util.Comparator;
+
+	public class Main {
+		public static void main(String[] args) {
+			List<Employee> employees = new ArrayList<>();
+			employees.add(new Employee("John", 30, 4000));
+			employees.add(new Employee("Alice", 25, 5000));
+			employees.add(new Employee("Bob", 30, 4500));
+			employees.add(new Employee("David", 25, 3000));
+
+			// Using Comparator.comparing for chaining
+			employees.sort(Comparator.comparing(Employee::getAge)
+									 .thenComparing(Employee::getSalary));
+
+			// Printing sorted employee list
+			employees.forEach(System.out::println);
+		}
+	}
+
 25. in howmany ways string object can instantiate.
 		--> two ways
 			--> String str ="Hi"
 			--> String str = new String("Hi")
-				--> it creates two objects (in String pool and in heap) and one reference variable where the variable ‘s’ will refer to the object in the heap
+				--> it creates two objects (in String pool and in heap) and one reference variable where the variable ‘str’ will refer to the object in the heap
 				--> if we want to change the referance to string pool, we can use intern() method. String str = new String("Hi").intern();
 26. what is super class and its usage
+	A superclass in Java is a class from which other classes inherit properties (fields) and behaviors (methods). 
+	It is also referred to as a parent class or base class. 
+	A class that inherits from the superclass is called a subclass (or derived class or child class).
 27. queryparameter and path parameter difference
+
+	In the context of web development, especially when designing RESTful APIs, query parameters and path parameters are two common ways to pass data in a URL.
+	They serve different purposes and are used in different scenarios. Here's a breakdown of the differences between them
+	
+	Path Parameters:
+	Path parameters are part of the URL path and are used to identify specific resources.
+	They are defined in the endpoint URL and are typically enclosed in curly braces ({}) in the API specification.
+	
+	Query Parameters:
+	Query parameters are optional parameters that are appended to the URL after a question mark (?).
+	They are typically used to filter or sort results and are defined as key-value pairs.
+	
 28. Put and Post, Get difference in restful
 29. difference between post and patch
 	--> POST is always for creating a resource ( does not matter if it was duplicated )
@@ -74,7 +275,7 @@
 36) what is eventual consistancy and strong consistancy
 	--> eventual consistensy is perioid data maintanance.when ever we are querying we may get outdated information.
 		but it has very low latency as there is no need to updated data badly and have the data till that last periodic event
-	--> stong is whwn every we are quering updated the infor from that periodic event.it will have updated into
+	--> strong is when ever we are quering updated the infor from that periodic event.it will have updated into
 		but it has high latency as data need to be updated while querying
 		
 37) what is CAP therom
@@ -82,6 +283,11 @@
 	--> availability
 	--> partition- tolerance
 38) which senario hibernate throw lazyinitialization error
+	LazyInitializationException occurs when you try to access a lazily loaded property or collection after the Hibernate session is closed.
+	Common scenarios include detached entities, web application workflows, and accessing lazy properties in different threads.
+	Solutions include using eager loading, employing the Open Session in View pattern, explicitly initializing collections, 
+	and utilizing DTOs to fetch necessary data upfront.
+	
 39) how to resolve issue of convering monolic to microservices with proxy 
 40) is their any way to know the performance of the method (i.e., execution time) in spring
 	--> @TrackExecutionTime annotation can help us
@@ -90,6 +296,11 @@
 	--> A Clustered index is a type of index in which table records are physically reordered to match the index.
 	--> A Non-Clustered index is a special type of index in which logical order of index does not match physical stored order of the rows on disk
 43) is streams have better performance?
+	Streams can offer better performance in certain scenarios, especially with large datasets and when leveraging parallel processing. H
+	owever, there may be cases where traditional methods are more efficient, particularly for small datasets or simple operations.
+	The decision to use streams should consider not only performance but also code clarity, maintainability, and the specific requirements of your application.
+	It’s essential to profile and measure the performance of both approaches in your application context to make informed decisions.
+	
 44) virtual machine vs container and what do you mean by image
 	VM :
 		--> VM uses hypervises to manage your Vms 
@@ -104,8 +315,72 @@
 		--> contains  name spaces and Cgroups
 		
 45) what is actaually instance
+	A class is a blueprint that defines the properties (attributes) and behaviors (methods) of the objects.
+	An instance is a specific object created from that class with actual values for its attributes.	
+	
 46) network loadbalancing and application load blancing. which one have better performance 
+	Comparing Performance
+	Speed and Efficiency:
+	Network Load Balancer (NLB): Generally provides better performance for applications that require minimal 
+	latency and can work without needing to inspect request content. It's more efficient for high-volume and simple network requests.
+	Application Load Balancer (ALB): May introduce some overhead due to the need to inspect and analyze incoming requests, 
+	potentially making it slightly slower in terms of raw connection handling.
+	
+	Traffic Management:
+	NLB: Is simpler and typically better suited for distributing traffic across servers for basic tasks.
+	ALB: Provides more advanced features, such as URL-based routing and content-based routing, 
+		which can improve overall user experience for complex applications, even if it comes at the cost of some performance.
+
+	Scalability:
+	Both NLB and ALB can handle large volumes of traffic. However, the choice depends on the specific use case. 
+	For purely HTTP-based applications with complex routing needs, ALB might be the better choice despite a possible slight performance trade-off.
+	
+	Application Requirements:
+	The performance of NLB and ALB should also be evaluated in the context of the specific application requirements. 
+	For applications that require sophisticated routing and user-specific behavior, the features of ALB might outweigh the slight performance hit.
+
 47) where do you use cache in microservices
+	1. API Response Caching
+		Scenario: Caching the responses of frequently accessed APIs to reduce the load on the backend services and decrease response time for clients.
+		Implementation: Use caching at the API gateway or within individual microservices to store responses for certain periods.
+		Tools: Tools like Redis, Memcached, or built-in HTTP caching mechanisms (like Varnish) can be utilized.
+		Example: Caching the response for a user profile API that doesn't change frequently.
+	2. Data Caching
+		Scenario: Caching data that is expensive to retrieve or compute, such as database query results or computations.
+		Implementation: When a microservice retrieves data from a database, it can store that data in a cache for subsequent requests.
+		Tools: In-memory data stores like Redis or Hazelcast.
+		Example: Caching product details retrieved from a database in an e-commerce application.
+	3. Session Caching
+		Scenario: Storing user session information to reduce the need for repeated database access for session-related data.
+		Implementation: Caching user session data, such as authentication tokens, preferences, or shopping cart contents.
+		Tools: Redis or any distributed cache solution.
+		Example: Caching user authentication tokens to quickly validate user sessions across multiple microservices.
+	4. Configuration Caching
+		Scenario: Caching application configuration settings to avoid hitting configuration services or databases repeatedly.
+		Implementation: When a microservice starts up, it can load configuration settings and cache them for use during runtime.
+		Tools: Spring Cloud Config with caching capabilities or any configuration management tool.
+		Example: Caching feature flags or application settings that rarely change.
+	5. Database Query Result Caching
+		Scenario: Caching results from database queries to avoid unnecessary database calls for frequently requested data.
+		Implementation: Store the results of expensive or repetitive queries in cache.
+		Tools: Query caching provided by databases like MySQL or caching solutions like Hibernate's second-level cache.
+		Example: Caching the results of a complex join operation that is executed frequently.
+	6. Service Discovery Caching
+		Scenario: Caching service registry data to minimize the number of calls to the service discovery mechanism.
+		Implementation: Cache the list of available service instances to reduce latency in service discovery.
+		Tools: Spring Cloud Eureka, Consul, or any service discovery tool that supports caching.
+		Example: Caching the list of user service instances in a user management service.
+	7. Content Delivery Caching
+		Scenario: Caching static content or assets (like images, CSS, JavaScript) at the edge to reduce load times for users.
+		Implementation: Use a Content Delivery Network (CDN) to cache static assets.
+		Tools: CDNs like Cloudflare, AWS CloudFront, or Akamai.
+		Example: Caching product images in a CDN to reduce latency for users accessing the e-commerce site.
+	8. Distributed Caching for Inter-service Communication
+		Scenario: Caching data that is shared across multiple microservices to reduce redundant calls and improve efficiency.
+		Implementation: Use a distributed cache to share frequently accessed data between services.
+		Tools: Redis, Hazelcast, or Apache Ignite.
+		Example: Caching a shared user profile information that multiple services access.
+		
 48) how do you handle service fails
 49) how do you chose data base
 50) ways to create object
@@ -134,7 +409,7 @@
 			then add to registrey 
 	--> BeanFactory and ApplicationContext are the containers of Spring. these two are interfaces
 		--> XMLBeanFactory ,Simple BeanFactory are one of the implemented class of BeanFactory 
-		--> ClassPathXmlApplicationContext,FileSystemXmlApplicationContext,XmlWebApplicationContext are few imolementation of ApplicationContext
+		--> ClassPathXmlApplicationContext,FileSystemXmlApplicationContext,XmlWebApplicationContext are few implementation of ApplicationContext
 			--> ConfigurableApplicationContext for spring boot
 			
 52) Spring bean Scopes
@@ -488,7 +763,7 @@ we have to configure entitymanager and trasaction manager aswell
 			--> pom.xml  will help keep one place that is .m2 folder
 			--> if we have custome jar , insted of keeping in repository we can use strage repositories like nexus
 			--> place jar in central repository at one place
-			--> we ca use storage repository like jgrog,NeXus for storage of libs
+			--> we can use storage repository like jgrog,NeXus for storage of libs
 			--> embeded server in artifact
 	-->3) Config
 			--> store config in Environment
@@ -510,7 +785,7 @@ we have to configure entitymanager and trasaction manager aswell
 			--> if you need to store, Do it in attached resources like DB or Messaging queue or cache
 	--> 7) Port Binding
 			--> export services via port binding
-			--> instred on depending on physical server,each application has embedded server
+			--> insted on depending on physical server,each application has embedded server
 			--> you can access severces through embedded server port.
 			--> Apps act as stadalone
 	--> 8) Concurrency
@@ -526,7 +801,7 @@ we have to configure entitymanager and trasaction manager aswell
 			-->in order to avoid parity, better to use containers like Docker to create image and deploy same image
 				to differant env
 	--> 11) Logs
-			--> tret logs as event streams
+			--> treat logs as event streams
 			--> ELK
 	--> 12) Admin Process
 			--> Run admin/management tasks as one-off processes
@@ -554,13 +829,13 @@ we have to configure entitymanager and trasaction manager aswell
 	--> alternative for Hystrix is Resilience4j
 
 96) SAGA Pattern
-	--> SAGA stands for  Asequence of local trasactions
+	--> SAGA stands for  A sequence of local trasactions
 	--> it is to address maintanace of transactional flow between different micro server intercommunication
 	--> to handle data cossistency between services
-	--> to address beloe SAGA will help out
+	--> to address below SAGA will help out
 		--> A single request is spanning over multiple services
 		--> need of atomicity trasaction((location transaction should be rollbacked) and 
-		isolation of concurent transaction(if user initate transaction from different channels) required
+			isolation of conccurent transaction(if user initate transaction from different channels) required
 		--> Trasient state of request process between State
 		--> Rollback/Compensaction action in case of failure
 	--> in SAGA Pattern belo are the key points
@@ -568,7 +843,7 @@ we have to configure entitymanager and trasaction manager aswell
 			have sequnce of local transactions
 		--> Each transaction(saga) updates data with in single service
 		--> Transaction could be sequential or parallel
-		-->this design pattrn designed for lonf running transactions
+		-->this design pattrn designed for long running transactions
 		--> mainly 2 types of implementation of SAGA pattern mostly used
 			--> Event/choreograthy based approach
 				--> each of microservice generate event and another listen that 
@@ -583,7 +858,7 @@ we have to configure entitymanager and trasaction manager aswell
 					service can listn this as faulure and parallelly					
 			--> Orchestration/command based approach
 				--> thre will be centralised service to orchestrate to handle requests
-				--> when ever request reached from UT orchistator will geneate the event to that perticular service
+				--> when ever request reached from UI orchistator will geneate the event to that perticular service
 					the listner service will do the process and generate the command for that event and
 					that will be listend by orchistration service and it will generate next event .. so on
 					and finally orchistarot will revert the response to UI
@@ -596,7 +871,7 @@ we have to configure entitymanager and trasaction manager aswell
 		--> if we have complex flow and so many microservices then we can use orchestrator
 
 97) Criterion samples
-	--> it is to fram the group of query statements
+	--> it is to frame the group of query statements
 		1)  Criteria crit = session.createCriteria(Product.class);
 			List<Product> results = crit.list();
 		2) Criteria crit = session.createCriteria(Product.class);
@@ -681,5 +956,56 @@ we have to configure entitymanager and trasaction manager aswell
 			--> it prevent all side effects
 101) how can we define base url for all controllers
 	--> by using property in application.properties spring.data.rest.basePath=/api
+	
+102) What is the difference between HashMap and ConcurrentHashMap? When would you use one over the other?
+Answer:
+	HashMap is not thread-safe, so it should not be used in a multi-threaded environment unless external synchronization is provided.
+	ConcurrentHashMap allows concurrent reads and writes without locking the entire map. It's designed for high-concurrency scenarios where multiple threads read and modify the map.
+	Use HashMap for single-threaded use cases, and ConcurrentHashMap for multi-threaded environments.
 
+103) Explain Java memory management, especially the roles of heap and stack memory.
+	Heap Memory: Used for dynamic memory allocation, i.e., objects are stored here.
+	Stack Memory: Stores primitive data types and references to objects in heap memory.
+	Garbage Collection: The JVM automatically reclaims memory from objects that are no longer in use. Familiarity with the garbage collection process, including G1GC, CMS, etc., is essential.
+	
+104) What are the key differences between synchronized blocks and Lock interfaces in Java?
+	synchronized: A simpler mechanism to acquire a lock on an object or method. It's implicit, and you cannot manually control the lock.
+	Lock Interface: Provides more flexibility with methods like lock(), unlock(), and tryLock(). 
+	It allows finer control, such as non-blocking attempts to acquire a lock and better handling of multiple conditions.
+	
+105) How would you design a large-scale distributed file storage system like Google Drive?
+	Architecture:
+	Use a distributed system for storing large amounts of data with redundancy.
+	Metadata Service: Manages file metadata (name, path, size, ownership).
+	Data Nodes: Store file contents across multiple nodes. Employ replication strategies for fault tolerance (e.g., using HDFS-style replication).
+	Load Balancing: Ensure even distribution of file chunks using hashing techniques.
+	Caching: Implement caching for frequently accessed files using Redis or Memcached.
+	Challenges:
+	Consistency: Use distributed consensus algorithms like Paxos or Raft for managing metadata consistency.
+	Data Sharding: Distribute file chunks across nodes for scalability.
+	
+106) How would you design a rate-limiting system for a large-scale API?
+	Token Bucket Algorithm: Clients get tokens at a fixed rate and can only make requests if they have tokens.
+	Sliding Window Algorithm: Instead of limiting in a fixed time window, allow spreading of requests across sliding intervals.
+	Storage: Use Redis to store request counts and implement expiration to reset counts over time.
+	Challenges: Handling rate limits across distributed instances, ensuring consistency.
+	
+107) How would you implement a microservice architecture with Spring Boot?
+	Use Spring Boot for creating standalone microservices.
+	Spring Cloud for service discovery using Eureka.
+	Implement API Gateway (e.g., with Spring Cloud Gateway) for routing requests.
+	Use Feign Client for inter-service communication.
+	Database per Service: Each microservice should have its own database for better separation of concerns.
+	Resilience: Implement fault tolerance with Hystrix for circuit breakers and Retry mechanisms.
+	
+108) Explain the volatile keyword in Java and when you would use it.
+	volatile keyword: It ensures visibility of changes to variables across threads. 
+	A volatile variable's value is always read from and written to main memory, not from a thread’s local cache.
+	Use case: Use volatile when multiple threads are reading and writing to a variable,
+	and you need to ensure that a thread always reads the latest value.
+	
+109) ELK stack
+	
+
+	
 	

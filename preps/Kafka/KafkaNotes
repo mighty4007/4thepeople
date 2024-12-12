@@ -22,7 +22,7 @@ Kafka Topics
 	--> data is assigned randomly to partition unless akey provided
 
 Producers and Message key
-	--> producers write data to toopics (which are made of partitions)
+	--> producers write data to topics (which are made of partitions)
 	--> producer knows which partition to write to (and which kafka broker has it)
 	--> In case of kafka broker failure, produces will autometically recover (this load is balanced to many brokers thanks to no of partitions)
 	--> producers can choose to send a key with the message(string,number,binary ..etc) its optional
@@ -79,7 +79,7 @@ Consumers and deserialization
 				--> if the process gone wrong, some message can be lost
 			--> Exactly once
 				--> for kafka : kafka workflows : use the transactional API(easy with kafka streams API)
-				--> for kafka : exyernal system workflows : use an idempotent consumer
+				--> for kafka : external system workflows : use an idempotent consumer
 Brokers and Topics
 	--> A kafka cluster is composed of multiple brokers(servers)
 	--> Each broker is identified with its ID (integer)
@@ -199,11 +199,11 @@ Kafka_Java
         		ProducerRecord record = new ProducerRecord("demo","hi how are you");
         --> send data (async)
         		produder.send(record);
-        --> send data (sync
+        --> send data (sync)
        		 produder.flush();
         --> closing
         	produder.close();
-    --> Producer with call back : callback method will be called dor each succcessfull send or exception
+    --> Producer with call back : callback method will be called for each succcessfull send or exception
 
     	-->  while sending data
     		-->   produder.send(record, new Callback() {
@@ -283,23 +283,23 @@ Kafka_Java
 			            consumer.close(); // this will also do auto commit offset
 			        }
 		--> Consumer Groups
-			--> groups will be relananceing on partitions on below statergies
+			--> groups will be rebalancing on partitions on below statergies
 				--> Eagar Rebalance (default)
 					--> once new consumer adds. it will cancell existing membership and reasigning
 					--> during short period of time, the entaire consumer group stop processing
 					--> consumers dont necessarly get back the same partition previously assigned
-				--> Cooerative rebalancing(incremental rebalance)
-					--> reassignng a small subset of partions from one consumer to nother
+				--> Cooperative rebalancing(incremental rebalance)
+					--> reassignng a small subset of partions from one consumer to another
 					--> can go through several iterations
 					--> Avoids "stop-the-world" events where all consumers stop processing
 					--> property partition.assignment.strategy
 						--> rangeAssignor : assign partitions on per-topic basis(can cause imbalance)
 						--> RoundRobin
 						--> StickyAssignor : balanced like RR and then minimises partition movements when consumer join/leave the group
-						--> CooperativeStickyAssignor : rebalance strategy is identical to sticky assignor but suppors cooerative balance
+						--> CooperativeStickyAssignor : rebalance strategy is identical to sticky assignor but supports cooerative balance
 						and therefore consumer can keep on consuming topic 
 						--> RA and CSA are default
-			--> if consumer leaves group and join back it will have new member ID. if we specify froup.instance.id makes consumer static member
+			--> if consumer leaves group and join back it will have new member ID. if we specify group.instance.id makes consumer static member
 				if its in session.timeout.ms
 	--> Producer Retries
 		--> in case of transient failures,developers are expected to handle exceptions,otherwise the data will be lost.
@@ -314,18 +314,18 @@ Kafka_Java
 			--> since 2.1 you can set delivery.timeout.ms=1200000==2 min 
 	--> Idempotent Producer
 		--> in kafka >=0.11 you can define a idempotent producer which wont introduce duplicates on network error
-		--> it is greate to guarantee a stable and safe pipeline
+		--> it is create to guarantee a stable and safe pipeline
 		--> they are default since kafka 3.0 recommended to use them
 		--> they comeup with 
 			--> retries=Integer.MAX_VALUE
 			--> max.in.flight.requests=1(kafka=0.11) where as 5 for >=1.0 for high performance
 			--> acks= all
-		--> we need to ser producerProps.put(enable.idempotence",true)
+		--> we need to set producerProps.put(enable.idempotence",true)
 	--> Safe Producer
 		--> since 3.0 the producer is safe by default
 			--> acks = all (-1)
 			--> enable.idempotence = true
-		--> with >=2.8 default as 1 and false
+		--> with <=2.8 default as 1 and false
 		--> key props to make produce safe
 			--> acks=all
 			--> min.insync.replicas = 2(broker/topic level)
@@ -333,7 +333,7 @@ Kafka_Java
 			--> delivery.timeout.ms=120000
 			--> max.in.flight.requests.per.connection=5
 				--> ensure max performace while keeping message ordering
-	--> Message copression at producer level
+	--> Message compression at producer level
 		--> produces usually send data that text-based, ex json
 		--> in this case,it is to importance to compress to improve performance
 		--> compression can be enabled at producer level doesnt require any config change in brokers or consumers
@@ -350,7 +350,7 @@ Kafka_Java
 			--> it will have upto max.in.flight.... =5, meaning up to 5 message batches being in flight
 			--> after this, if more msgs must be sent while others are in flight,kafka is smart and will start batching them before the next batch send
 		--> above two settings to influence the batching machanism
-		--> linger.ms:default 0 how long to wait untill we send a batch. adding small number ex 5 helps add more msgs in that atch at expence of latency
+		--> linger.ms:default 0 how long to wait untill we send a batch. adding small number ex 5 helps add more msgs in that batch at expence of latency
 		--> batch-size: default 16KB if batch is filled before linger.ms increase batch size
 		       	props.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG,"snappy");
         		props.setProperty(ProducerConfig.LINGER_MS_CONFIG,"20");
@@ -422,6 +422,196 @@ Kafka_Java
     			 
 
 
+
+-------------------------------------- dipesh notes ----------------------------------------------------------------------
+
+1. Install microservices base locally in to your m2
+
+To install Jar use following command
+mvn install:install-file -Dfile=/Users/drane/Documents/projects/broadridge/microservices-base-template/target/microservices-base-0.0.2-SNAPSHOT.jar -DgroupId=com.altimetrik.base.service -DartifactId=microservices-base -Dversion=microservices-base-0.0.2-SNAPSHOT -Dpackaging=jar
+
+To install Pom Use following command
+mvn install:install-file -Dfile=/Users/drane/Documents/projects/broadridge/microservices-base-template/pom.xml -DgroupId=com.altimetrik.base.service -DartifactId=microservices-base -Dversion=microservices-base-0.0.2-SNAPSHOT -Dpackaging=pom
+
+
+2. Run docker compose file (docker-compose.yml) provided on your local machine. Make sure you have docker desktop installed on your machine. Go to directory where docker compose file is stored and run the following command. -d option runs it in backround as daemon processes.
+
+command: docker-compose up -d 
+
+For first time since no docker image is pulled on your machine it will take some time (10-12 minutes) depending on your internet connectivity.
+Wait for all service status changed from Creating to Started/Created.
+
+3. This compose will install kafka broker, schema registry, postgres, mongodb, kafka connectors etc.
+Wait for couple of minutes till kafka eastabilishes communication between its internal containers. You can check all containers running using command
+
+command: docker ps 
+
+Output will be something like this.
+
+CONTAINER ID   IMAGE                                             COMMAND                  CREATED              STATUS              PORTS                                            NAMES
+cb6a5e303fce   confluentinc/cp-enterprise-control-center:7.7.1   "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:9021->9021/tcp                           control-center
+e39e60f2b5ec   confluentinc/ksqldb-examples:7.7.1                "bash -c 'echo Waiti…"   About a minute ago   Up About a minute                                                    ksql-datagen
+d664b6a9e41d   confluentinc/cp-ksqldb-cli:7.7.1                  "/bin/sh"                About a minute ago   Up About a minute                                                    ksqldb-cli
+706efba1e305   confluentinc/cp-ksqldb-server:7.7.1               "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8088->8088/tcp                           ksqldb-server
+c05778cf6e9d   cnfldemos/cp-server-connect-datagen:0.6.4-7.6.0   "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8083->8083/tcp, 9092/tcp                 connect
+390534f9d8c1   confluentinc/cp-kafka-rest:7.7.1                  "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8082->8082/tcp                           rest-proxy
+3de4e2334c4a   confluentinc/cp-schema-registry:7.7.1             "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8081->8081/tcp                           schema-registry
+e2cef13303f9   mongo                                             "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:27017->27017/tcp                         compose-mongo-1
+9fcec7806793   mongo-express                                     "/sbin/tini -- /dock…"   About a minute ago   Up About a minute   0.0.0.0:8888->8081/tcp                           compose-mongo-express-1
+0b4adbecfc32   busybox                                           "sh -c 'while true; …"   About a minute ago   Up About a minute                                                    my_busybox
+c1303ade4ff2   confluentinc/cp-kafka:7.7.1                       "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:9092->9092/tcp, 0.0.0.0:9101->9101/tcp   broker
+a49dc3139cc9   postgres                                          "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:5432->5432/tcp                           compose-db-1
+
+
+
+4. Check if you can access kafka UI.
+Kafka UI is served through docker container control-center. Check its port using command "docker ps". In our case its 9021. Access Kafka UI from your favorite browser by hitting http://localhost:9021
+
+
+
+============================= Setting Up Postgres For CDC ==========================================================
+
+1. Postgres installed from our compose file is running on port 5432.If you have manually installed postgres using exe its going to create conflict. Feel free to change the port in compose file for service db.
+
+2. To enable CDC we need to modify the postgres.conf file and restart postgres. To access this file use the command
+docker ps to find the busybox container. Check its name. In our case its my_busybox. 
+Use following command to go inside busybox container
+command: docker exec -it my_busybox /bin/sh
+
+3. Change the following parameters in postgresql.conf  the values should be as follows.
+The file can be found at /mnt/shared folder inside busybox container.
+
+wal_level = logical
+max_replication_slots = 4
+max_wal_senders = 4
+
+save the file and exit container.
+
+command: exit
+
+4. Restart Postgres container.
+Use command docker ps to list the containers. Check the name of postgres container in our case it is compose-db-1.
+Use following command to restart the postgres container
+command: docker restart compose-db-1
+
+5. Verify the settings are applied
+Connect to postgres database using your favorite DB client tool. e.g. DBWeaver or PGAdmin.
+Open SQL console and execute following commands and verify it shows the values same as we set in postgresql.conf file
+
+show wal_level ;
+show max_replication_slots;
+show max_wal_senders;
+
+
+Your Postgres is set now for CDC changes.
+
+
+
+=================================== Install Kafka Debezium Connector for Postgres ============================================
+Debezium Plugin for postgres needs to be installed in Kafka Connect container. 
+
+1. Check the container name for connector using docker ps.In our case its connect.
+
+2. Go inside the container for connect using the command
+
+command: 
+ docker exec -it connect /bin/bash
+
+3. Switch to the directory 
+/usr/share/confluent-hub-components
+
+4. Down load the plugin by using following command
+
+command : wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/1.9.7.Final/debezium-connector-postgres-1.9.7.Final-plugin.tar.gz
+
+5. Extract the plugin once download is complete
+
+command : tar -xvf debezium-connector-postgres-1.9.7.Final-plugin.tar.gz
+
+6. Plugin installation is completed exit the container
+
+command: exit
+
+7. Restart the connect container
+
+command: docker restart connect
+Wait for couple of minutes till container for connect fully comes up. Verify the connector screen is loading from Kafka control center UI at http://localhost:9021 and click on Connect menu. 
+
+8. Create a table in your postgres database. Using your SQL client (DBWeaver/PGAdmin) e.g. user_info. Any table you want to track using CDC feature we need to add it as publisher in Postgres. Fire below query to enable CDC logs for your table
+
+CREATE PUBLICATION user_info_publication FOR TABLE public.user_info ;
+ALTER TABLE public.user_info REPLICA IDENTITY FULL;
+
+Note that public is schema name.Alter table query will ensure while publishing changes both before and after state is published.
+Now your table is all set to emmit change logs.
+
+9. Create a connector using postgres connector.
+  Create a json file with following details,
+
+   {
+    "name": "Mongo_Connector",
+    "config": {
+        "name": "DataSync-Mongo_Connector",
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "key. converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "database.server.name": "mongosyncconfig",
+        "database.hostname": "db",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "example",
+        "database.dbname": "user-management",
+        "plugin.name": "pgoutput",
+        "slot.name": "mongosyncconfig",
+        "decimal.handling.mode": "double",
+        "time.precision.mode": "adaptive",
+        "snapshot.mode": "never",
+        "table.include.list": "public.user_info"
+    }
+}
+
+10. Import this json file in Kafka Connector screen
+Click on Connect Menu on Left hand panel-->Click on connect-default --> Click on Add Connector button -- > Click on Upload connector config file
+
+Give the path of Json file you created in #10 above.
+
+Make sure you check the parameter in "Include Tables" text box. It should reflect the correct table name with schema in our case its public.user_info
+
+11.Click on Next -- > Click on Launch
+
+12. You will be redirected to Connectors page and you can see your connector in Error state first but within few seconds it should go in running state. Your connector is all set.
+
+13.Go to topics you should see a topic with name matching to your database table name.In our case it would be something like mongosyncconfig.public.user_info. Check the messages in topic there should be one message which has table schema details.
+
+14. Go to Postgres databse using DBWeaver/PGAdmin and add/modify any record in table. As soom as you modify the state of any record in table immediately kafka will receieve the message with changes you have made on topic mongosyncconfig.public.user_info.
+
+
+
+=========================================== Mongo DB Setup ========================================================
+1. Go inside mongo db container. Check the name of mongodb container using command docker ps.
+In our case its compose-mongo-1 using this name get into the container using following command 
+
+command: docker exec -it compose-mongo-1 mongosh -u root -p example --authenticationDatabase admin
+
+2. Once inside mongo container create a new database, using following command
+
+command: use audit-service-db
+
+3. Create a collection inside audit-service-db
+
+command: db.createCollection('user_info_audit')
+
+3. Give root user read/write access to new DB you created inside mongodb by firing below command
+
+command: 
+1. use admin
+
+2. db.grantRolesToUser("root", [{ role: "readWrite", db: "audit-service-db" }]);
+
+4. Exit out of mongo container. command : exit
+
+5. Check your DB in Mongo express UI by hitting URL in your browser http://localhost:8888
 
         
 

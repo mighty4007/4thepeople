@@ -221,7 +221,7 @@ Key concepts of 1.8
 				Comparator<Employee> c =(e1,e2)-> (e1.eno <e1.emo)?-1:(e1.eno >e1.emo)?1:0;
 				
 				Collections.sort(l,c)
-				Collections.sort(l,(e1,e2)-> (e1.eno <e1.eno)?-1:(e1.eno >e1.eno)?1:0);
+				Collections.sort(l,(e1,e2)-> (e1.eno <e2.eno)?-1:(e1.eno >e2.eno)?1:0);
 				Collections.sort(l,(e1,e2)-> e1.ename.compareTo(e2.name)); // name sorting using name alphabatical
 
 				sout(l);
@@ -232,7 +232,7 @@ Key concepts of 1.8
 --> Anonymous Inner Classes Vs Lambda expressions		
 	--> lamba expression is not replacement of anonymous inner class
 	--> anonymous inner class is more powerfull than lambda expression
-	--> anonymous inner classes/interfaces are used fot instant use
+	--> anonymous inner classes/interfaces are used for instant use
 	--> examples of anonymous class
 			
 			Thread t = new Thread(){
@@ -330,7 +330,7 @@ Key concepts of 1.8
 		
 	--> Function
 			--> it is to address for every input value perform some operation and produce result
-			--> inyerface Function<T,R>
+			--> interface Function<T,R>
 				{
 					public R apply (T t);
 				}
@@ -339,7 +339,7 @@ Key concepts of 1.8
 					-->f1.andThen(f2).apply(i) --> first f1 then f2
 					-->f1.compose(f2).apply(i) --> first f2 then f1
 	--> Consumer
-		--> it will take input but not return any thinf
+		--> it will take input but not return any thing
 		--> interface Consumer<T>{
 				public void accept(T t);
 				}
@@ -378,7 +378,7 @@ Key concepts of 1.8
 ------------------------------------------ : Method and Constructor referance : -----------------------------------------------------------------
 
 --> Method and Constrctor referance is alternative/replacable for lambda functions to reuse
---> method reference can be done done on static and instance method.syntax vary
+--> method reference can be done on static and instance method.syntax vary
 		--> className::MethodName -->static method
 			Runnable r = RunBody::m1; // Here m1 method of RunBody no need to be inplement Runnable interface.but it must match input arfuments
 			Thread t = new Thread(r);

@@ -1,0 +1,115 @@
+--> What is graphQL
+	--> stands for graph query language initially developed by facebook
+	--> its an open source data query and manipulation language for API
+	--> like sql we are all also fetch data using query and has flexibility to choose what need to be fetched
+	--> we use Query(read) to fetch data and mutation (create,update,delete)to alter the data
+	--> like REST API we can use GQL with different language like python,ruby,java ..etc
+	
+--> what is GQL query
+	--> used to fetch data 
+	--> you can compare with REST GET API
+	--> GraphQLQueryResolver interface used to create our query
+	
+--> what is GQL mutation
+	--> used to alter data(create,uodate,delete)
+	--> can compare with REST post,put and delete
+	--> GraphQLmutationResolver interface used to alter the data
+
+--> what is GQL schema
+	--> schema provides flexibility to consumers to select the attributes they want in response
+		it has .graphqls file extention
+	--> its defines which attribute are their in your class with data type
+	--> the fields provided in schema only visible to consumer
+	--> its an contract between consumer and provider on how to get and alter the data for application
+	--> schema is collection of GQL types. Query and Mutation are root types in schema i.e., entry point to application
+	-> sample
+		type student{
+			id: Long
+			name: string
+			age: int
+			dob: Date
+		}
+		
+--> GQL vs REST	
+	--> Rest has fixed response where as GQL we can select what we want
+	--> over or under fetching in REST whare as it can controlable in GQL
+	--> rest has different http methods to seperate	endpoint for each API
+		while GQL has only query and mutation and there is only one end point
+	--> GQL need schema file where Rest dont need it
+	--> all calls are http POst in GQL in web environment
+	
+--> Resolver
+	--> Resolver  help us to improving the performance by not fetching the non desired data
+	--> we can have one resolver for one class and inside that we can have methods for each field
+	--> it will be donr by implementing the GraphQLResolver interface
+		--> ex : @Service
+			public class StudentResponseResolver implements GraphQLResolver<StudentResponse> {}
+	--> All the methods in resolver should be public
+
+--> Edge
+	--> node is like a object that holds properties
+	--> edge is connection/path btw nodes
+	--> StudentNode --> SubjectNode
+	--> we travers node to node throug edge
+	--> Using edge we can filter the data on connected node
+
+--> Mutation
+	--> schema sample 
+		type Mutation {
+			createStudent(createStudentRequest : CreateStudentRequest) : StudentResponse
+			}
+
+			input CreateStudentRequest {
+				firstName : String
+				lastName : String
+				email : String
+				street : String
+				city : String
+				subjectsLearning : [CreateSubjectRequest]
+			}
+
+			input CreateSubjectRequest {
+				subjectName : String
+				marksObtained : Float
+			}
+	--> if we already have type in any schema you dont need to provide it here again.here if StudentResponse
+		already present in Query schema you dont need to define again here 
+		
+--> Heroku
+	--> its a PaaS cloud provider from saleforce
+	--> we can deploy apps free within time frame
+
+--> GraphQl Variables
+	--> graphql variables used by clients who is calling the service for testing and looping and iteration of request support
+	--> and also from back end also we need to connect to other service at that time also our backend will be clients
+	--> GQL with query
+		--> in variable section  (should be in json)
+		--> {
+				"id" :1 
+			}
+		--> then our query will be
+			-->Query student($id:Long,...){
+				student(id : $id){
+				id
+				name
+				}
+			}
+	--> GQL with Mutation
+		--> variable
+			--> {
+				"createstidentRequest" : {
+					"firstname":"firstname",
+					....,
+					"email":"email"
+				}
+			}
+		
+		--> mutation will be
+			--> mutation (crateStudent($createstidentRequest: CreateStudentRequestreatestidentRequest){ 
+				crateStudent(createstudentRequest:$createstidentRequest{
+				firstname
+				....
+				email
+				
+				})
+			}

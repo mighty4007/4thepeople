@@ -6,7 +6,7 @@
 	--> Filter chain proxy : it will handover the request to actual filters in chain
 --> based on url patters the chain of filters will be vary
 --> flow evebts once user scucessfully login. 
-	--> it will create Priciple object its associated aith Authorities Object (roles maintained)
+	--> it will create Priciple object its associated auth Authorities Object (roles maintained)
 	--> priciple object and Authorities object combily populated to authentication object
 	--> once Authertication object formed this object will be injected to SecurityContext
 	--> Securitycontext will be injected to HttpSession
@@ -21,7 +21,7 @@
 		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
 		--> then it will go to AuthenticationFilter. it will check if any authentication details found in holder.since here no details found,it will pass
 		--> then it will go to RemembeMeFilter. it will check if any remember cookie. if no it will pass
-		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> then it will go to ExceptionTransactionFiler.since no exception it will pass
 		--> FilerSecurityInterceptor will check if  resource is secured. since it is unsecure  it will hand over again
 			to SpringContextPersistanceFilter
 		--> SpringContextPersistanceFilter will check if any update in SpringSecurityContext. if its still empty
@@ -34,7 +34,7 @@
 		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
 		--> then it will go to AuthenticationFilter. it will check if any authentication details found in holder.since here no details found,it will pass
 		--> then it will go to RemembeMeFilter. it will check if any remember cookie. if no it will pass
-		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> then it will go to ExceptionTransactionFiler.since no exception it will pass
 		--> FilerSecurityInterceptor will check if  resource is secured.since it is secure it will check if user authenticated.as its not aithenticated
 			it will throw AuthenticateException
 		--> since Exception raised it will be taken up by ExceptionTransaction filer
@@ -53,7 +53,7 @@
 			   -->and then it will deligate to AuthenticationProvider to authenticate details
 					--> provider will deligate to UserDetailsService Bean wich will retrive details from in memory/database/lDap..etc
 					--> Provider will authenticate based on details and handover to AuthenticationManager
-			--> it it is authnticated AuthenticationManager will inject the Authentication object 
+			--> if it is authnticated AuthenticationManager will inject the Authentication object 
 				with holds Priciple and authorities to Security context and put it to its threadLocal and session
 				
 	--> when user hit secured resource after success login with required role
@@ -65,7 +65,7 @@
 		--> then it will go to RemembeMeFilter.it will pass
 		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
 		--> FilerSecurityInterceptor will check if  resource is secured.since it is Authenticated it will check for access roll by
-			deligating to AcessDecitionManager to grat access for submited user it its fine then resouurce will be accessed
+			deligating to AcessDecisionManager to grat access for submited user it its fine then resouurce will be accessed
 	
 	--> when user hit secured resource after success login with-out required role
 		--> SpringContextPersistanceFilter will check if Springsecurity context available in session
@@ -74,7 +74,7 @@
 		--> then it will go to LogOut Filter. as its not logout request it will pass to next filter
 		--> then it will go to AuthenticationFilter. it will pass
 		--> then it will go to RemembeMeFilter.it will pass
-		--> then it will go to ExceptionTransactionFiler.since no wxception it will pass
+		--> then it will go to ExceptionTransactionFiler.since no exception it will pass
 		--> FilerSecurityInterceptor will check if  resource is secured.since it is Authenticated it will check for access roll by
 			deligating to AcessDecitionManager to grat access for submited user since its not in required role
 			it will throw AccessDenideExceprion.that will be taken care by ExceptionTrasaction Filter by returning error page
@@ -131,7 +131,7 @@
 			--> implementations
 				--> new BCryptPasswordEncoder()
 				--> NoOpPasswordEncoder.getInstance();
-				--> then override userDetailsSericeBean() as bean and return super method
+				--> then override userDetailsServiceBean() as bean and return super method
 	--> then override configure method which has AuthenticationBuilder input
 			--> here we can set whre are users fom like inmemory/jdbc/ldap with user role
 	--> now configure DigestAuthenticationFilter object by defining as method and suppy entrypoint and userdetails bean for this filtering
@@ -179,7 +179,7 @@
 		--> random encription key is a symecric encription that mean encription and decrition posible by same key
 		--> server will send response by encriting with sessionKey
 		--> client will decript with same key as only browser knows that key
-		--> noe onwards clint will encript request by public key and server respose encripted by sessionKey
+		--> now onwards clint will encript request by public key and server respose encripted by sessionKey
 	--> to make auto direct to https we need to configure ServletWebServerFactory and redirect Using Connector object
 
 --> Spring cloud vault
@@ -204,7 +204,7 @@
 	
 --> OAUTH2
 	--> terminology of 4 actors in other 2
-		--> resouce Owner
+		--> resource Owner
 			--> actual user who have owner ship on resource
 		--> Client
 			--> the one who want to acces the resouce on behalf of resource owner
@@ -228,7 +228,7 @@
 			--> if that is valid authentican server will provide  details of the user and scopes to resource server as json
 			--> then resoure server will give requested data to client
 		--> Client-credential grant
-			--> its kind of client deling with resouce servers. i.e., client using 
+			--> its kind of client dealing with resouce servers. i.e., client using 
 				finctionalities of resouces managed by integral partner
 			--> for ex.. we are ingerating with XM api
 			--> here there is no need of generating autho code with involues resouce owner permission
@@ -292,7 +292,7 @@
 						session:
 							cookie:
 								path: /auth
-			--> add nasic authentication base base authentication details
+			--> add basic authentication base base authentication details
 			-->now when ever you need a token request with grant type  body/query (as key value pairs) based on grant type provided
 				--> grant_type : client_credentials/password/authorization_code
 			--> token will be received as barer token

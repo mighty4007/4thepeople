@@ -44,13 +44,15 @@ Map(I) (v 1.2) : map is not a extention of Collection
 --> RandomeAccess is marker interface
 		--> marker interface dont have any methods
 --> Vector also implemented RandomeAccess
+--> Vector is synchronized where as arraylist is not 
 --> Arraylist is best choice retrival operation and bad for insertion and remove
 
 
 --------------------------------------------- : HashSet : -------------------------------------------------------------------
 --> hash Set is similar to HashMap functionality for internal managemet
 --> since there is no key concept in set. the value will be stored as Key in hashtable and value as default Object
---> in hashset insersion order is not preserved. it will based on the has index generation
+--> in hashset insersion order is not preserved. it will based on the hash index generation
+--> not allows duplicate
 
 -----------------------------------------------: LinkedSet : ------------------------------------------------------
 --> its same as HashSet but insersion order will be preserved using linked list concept
@@ -97,7 +99,7 @@ Map(I) (v 1.2) : map is not a extention of Collection
 		--> if map found same hashkey for different key. then another linked list created and linked to new list from existing in same index.its called hash collision
 --> if key is null. that that values will be stored on 0 th node.
 --> it there is duplicate key it will override to latest one
---> there are 2 variables LoadFactor and ThreadHold . the default percentage of LoadFactor is 0.75. so thresehold will be 12.map will double the current size
+--> there are 2 variables LoadFactor and ThreshHold . the default percentage of LoadFactor is 0.75. so thresehold will be 12.map will double the current size
 --> get method working.map.get("key")
 	--> hashcode will be computed for the hascode for the key
 	--> it will compute index as well.

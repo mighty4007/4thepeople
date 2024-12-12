@@ -404,7 +404,7 @@
 		--> it provide more flexibily than treditional locks
 		--> key methods
 			--> void lock() : it is to acquire a lock. if lock is already available. then imediatly current thread will get that lock.if lock already
-				available then it eill wait utill getting the lock. it is exactly same behaviour of traditional synchonized keyword
+				available then it will wait utill getting the lock. it is exactly same behaviour of traditional synchonized keyword
 			--> boolean tryLock() : to acquire the lock without waiting. if lock available then thread acquires that lock and returns true.if not its false and 
 				its continue its operation
 				if(t.trylock())
@@ -525,7 +525,7 @@
 		--> its singleton 
 		--> by factory method only we can create Object
 --> Finalization
-	--> GC will call finaliza method before destroying object
+	--> GC will call finalize method before destroying object
 	--> finalize() is protected methods available in object class with empty implementation. thows Trowable
 	--> we need to override finalize() to write our cleanup activity
 	--> if we call finalize() explicitly. but it will behave like normal method.object wont be destroyed
@@ -599,7 +599,7 @@
 		}
 		
 		Cases:
-		1)--> if there is no exception :  1,2,3,4,5,Normal termination
+		1)--> if there is no exception :  1,2,3,5,Normal termination
 		2)--> if exception raised at stmt 2 : 1,4,5,Normal termination
 		3)--> if exception raised at stmt 2 and corresponding catch block not matched : 1,abnormal termination
 		4)--> if Exception raised at stmt 4 or 5 : 1,2,3,abnormal termination
@@ -621,7 +621,7 @@
 	--> finally should be followed by try or catch block
 	--> finally vs return statement
 		--> after returns nothing with be executed after that
-		--> if try are catch having return statement then it will execute finally then return
+		--> if try or catch having return statement then it will execute finally then return
 		--> if finally has return statement then only finally block return will be considered
 	--> finally vs System.exit(0) : 0 : normal termination, any other number is abnormal termination
 		--> if System.exit(0)(JVM will be shutdown) the finally wont be executed
@@ -636,6 +636,7 @@
 	class Test{
 			p s v main(s a[]){
 			try{
+			.3
 				statement 1
 				statement 2
 				statement 3
@@ -787,7 +788,7 @@
 				}catch(E e){..}
 				--> once comtrol reaches end of the try block.autometically br will be closed.we are not required to close explicity
 				
-		--> we can take any number of resources into try block bit should be seperated with ";"
+		--> we can take any number of resources into try block but should be seperated with ";"
 		--> AutoClosable: the corresponding class should Implement java.lang.AutoClosable interface, BufferReader implemented java.lang.AutoClosable interface
 			--> only one method close()
 		--> what ever resouces defined in try block implecitly finally. we cant re assign new values to resources defined in try
@@ -800,7 +801,7 @@
 				}catch(E e){..}
 		
 	--> multi catch block
-		--> before 1.7 it is must to follow catch ot finally for try block. from 1.7 try with resouce is allowed to not to have catch and finally
+		--> before 1.7 it is must to follow catch or finally for try block. from 1.7 try with resouce is allowed to not to have catch and finally
 		--> below is possible for below syntax
 			try{} catch (ArithmeticException|NullPointerException|InterruptedException e) { e.ptintstack()}
 			catch (Exception|ArithmeticException|NullPointerException|InterruptedException e) --> in valid. there should not be parent child realtion of mentioned Exception
