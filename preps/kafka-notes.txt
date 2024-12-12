@@ -1,0 +1,188 @@
+
+1. Install microservices base locally in to your m2
+
+To install Jar use following command
+mvn install:install-file -Dfile=/Users/drane/Documents/projects/broadridge/microservices-base-template/target/microservices-base-0.0.2-SNAPSHOT.jar -DgroupId=com.altimetrik.base.service -DartifactId=microservices-base -Dversion=microservices-base-0.0.2-SNAPSHOT -Dpackaging=jar
+
+To install Pom Use following command
+mvn install:install-file -Dfile=/Users/drane/Documents/projects/broadridge/microservices-base-template/pom.xml -DgroupId=com.altimetrik.base.service -DartifactId=microservices-base -Dversion=microservices-base-0.0.2-SNAPSHOT -Dpackaging=pom
+
+
+2. Run docker compose file (docker-compose.yml) provided on your local machine. Make sure you have docker desktop installed on your machine. Go to directory where docker compose file is stored and run the following command. -d option runs it in backround as daemon processes.
+
+command: docker-compose up -d 
+
+For first time since no docker image is pulled on your machine it will take some time (10-12 minutes) depending on your internet connectivity.
+Wait for all service status changed from Creating to Started/Created.
+
+3. This compose will install kafka broker, schema registry, postgres, mongodb, kafka connectors etc.
+Wait for couple of minutes till kafka eastabilishes communication between its internal containers. You can check all containers running using command
+
+command: docker ps 
+
+Output will be something like this.
+
+CONTAINER ID   IMAGE                                             COMMAND                  CREATED              STATUS              PORTS                                            NAMES
+cb6a5e303fce   confluentinc/cp-enterprise-control-center:7.7.1   "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:9021->9021/tcp                           control-center
+e39e60f2b5ec   confluentinc/ksqldb-examples:7.7.1                "bash -c 'echo Waiti…"   About a minute ago   Up About a minute                                                    ksql-datagen
+d664b6a9e41d   confluentinc/cp-ksqldb-cli:7.7.1                  "/bin/sh"                About a minute ago   Up About a minute                                                    ksqldb-cli
+706efba1e305   confluentinc/cp-ksqldb-server:7.7.1               "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8088->8088/tcp                           ksqldb-server
+c05778cf6e9d   cnfldemos/cp-server-connect-datagen:0.6.4-7.6.0   "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8083->8083/tcp, 9092/tcp                 connect
+390534f9d8c1   confluentinc/cp-kafka-rest:7.7.1                  "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8082->8082/tcp                           rest-proxy
+3de4e2334c4a   confluentinc/cp-schema-registry:7.7.1             "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:8081->8081/tcp                           schema-registry
+e2cef13303f9   mongo                                             "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:27017->27017/tcp                         compose-mongo-1
+9fcec7806793   mongo-express                                     "/sbin/tini -- /dock…"   About a minute ago   Up About a minute   0.0.0.0:8888->8081/tcp                           compose-mongo-express-1
+0b4adbecfc32   busybox                                           "sh -c 'while true; …"   About a minute ago   Up About a minute                                                    my_busybox
+c1303ade4ff2   confluentinc/cp-kafka:7.7.1                       "/etc/confluent/dock…"   About a minute ago   Up About a minute   0.0.0.0:9092->9092/tcp, 0.0.0.0:9101->9101/tcp   broker
+a49dc3139cc9   postgres                                          "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:5432->5432/tcp                           compose-db-1
+
+
+
+4. Check if you can access kafka UI.
+Kafka UI is served through docker container control-center. Check its port using command "docker ps". In our case its 9021. Access Kafka UI from your favorite browser by hitting http://localhost:9021
+
+
+
+============================= Setting Up Postgres For CDC ==========================================================
+
+1. Postgres installed from our compose file is running on port 5432.If you have manually installed postgres using exe its going to create conflict. Feel free to change the port in compose file for service db.
+
+2. To enable CDC we need to modify the postgres.conf file and restart postgres. To access this file use the command
+docker ps to find the busybox container. Check its name. In our case its my_busybox. 
+Use following command to go inside busybox container
+command: docker exec -it my_busybox /bin/sh
+
+3. Change the following parameters in postgresql.conf  the values should be as follows.
+The file can be found at /mnt/shared folder inside busybox container.
+
+wal_level = logical
+max_replication_slots = 4
+max_wal_senders = 4
+
+save the file and exit container.
+
+command: exit
+
+4. Restart Postgres container.
+Use command docker ps to list the containers. Check the name of postgres container in our case it is compose-db-1.
+Use following command to restart the postgres container
+command: docker restart compose-db-1
+
+5. Verify the settings are applied
+Connect to postgres database using your favorite DB client tool. e.g. DBWeaver or PGAdmin.
+Open SQL console and execute following commands and verify it shows the values same as we set in postgresql.conf file
+
+show wal_level ;
+show max_replication_slots;
+show max_wal_senders;
+
+
+Your Postgres is set now for CDC changes.
+
+
+
+=================================== Install Kafka Debezium Connector for Postgres ============================================
+Debezium Plugin for postgres needs to be installed in Kafka Connect container. 
+
+1. Check the container name for connector using docker ps.In our case its connect.
+
+2. Go inside the container for connect using the command
+
+command: 
+ docker exec -it connect /bin/bash
+
+3. Switch to the directory 
+/usr/share/confluent-hub-components
+
+4. Down load the plugin by using following command
+
+command : wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/1.9.7.Final/debezium-connector-postgres-1.9.7.Final-plugin.tar.gz
+
+5. Extract the plugin once download is complete
+
+command : tar -xvf debezium-connector-postgres-1.9.7.Final-plugin.tar.gz
+
+6. Plugin installation is completed exit the container
+
+command: exit
+
+7. Restart the connect container
+
+command: docker restart connect
+Wait for couple of minutes till container for connect fully comes up. Verify the connector screen is loading from Kafka control center UI at http://localhost:9021 and click on Connect menu. 
+
+8. Create a table in your postgres database. Using your SQL client (DBWeaver/PGAdmin) e.g. user_info. Any table you want to track using CDC feature we need to add it as publisher in Postgres. Fire below query to enable CDC logs for your table
+
+CREATE PUBLICATION user_info_publication FOR TABLE public.user_info ;
+ALTER TABLE public.user_info REPLICA IDENTITY FULL;
+
+Note that public is schema name.Alter table query will ensure while publishing changes both before and after state is published.
+Now your table is all set to emmit change logs.
+
+9. Create a connector using postgres connector.
+  Create a json file with following details,
+
+   {
+    "name": "Mongo_Connector",
+    "config": {
+        "name": "DataSync-Mongo_Connector",
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "key. converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "database.server.name": "mongosyncconfig",
+        "database.hostname": "db",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "example",
+        "database.dbname": "user-management",
+        "plugin.name": "pgoutput",
+        "slot.name": "mongosyncconfig",
+        "decimal.handling.mode": "double",
+        "time.precision.mode": "adaptive",
+        "snapshot.mode": "never",
+        "table.include.list": "public.user_info"
+    }
+}
+
+10. Import this json file in Kafka Connector screen
+Click on Connect Menu on Left hand panel-->Click on connect-default --> Click on Add Connector button -- > Click on Upload connector config file
+
+Give the path of Json file you created in #10 above.
+
+Make sure you check the parameter in "Include Tables" text box. It should reflect the correct table name with schema in our case its public.user_info
+
+11.Click on Next -- > Click on Launch
+
+12. You will be redirected to Connectors page and you can see your connector in Error state first but within few seconds it should go in running state. Your connector is all set.
+
+13.Go to topics you should see a topic with name matching to your database table name.In our case it would be something like mongosyncconfig.public.user_info. Check the messages in topic there should be one message which has table schema details.
+
+14. Go to Postgres databse using DBWeaver/PGAdmin and add/modify any record in table. As soom as you modify the state of any record in table immediately kafka will receieve the message with changes you have made on topic mongosyncconfig.public.user_info.
+
+
+
+=========================================== Mongo DB Setup ========================================================
+1. Go inside mongo db container. Check the name of mongodb container using command docker ps.
+In our case its compose-mongo-1 using this name get into the container using following command 
+
+command: docker exec -it compose-mongo-1 mongosh -u root -p example --authenticationDatabase admin
+
+2. Once inside mongo container create a new database, using following command
+
+command: use audit-service-db
+
+3. Create a collection inside audit-service-db
+
+command: db.createCollection('user_info_audit')
+
+3. Give root user read/write access to new DB you created inside mongodb by firing below command
+
+command: 
+1. use admin
+
+2. db.grantRolesToUser("root", [{ role: "readWrite", db: "audit-service-db" }]);
+
+4. Exit out of mongo container. command : exit
+
+5. Check your DB in Mongo express UI by hitting URL in your browser http://localhost:8888
